@@ -1,0 +1,42 @@
+Sun  1 Jan 2012 16:02:17 EST
+Tim Brecht
+Fri  3 May 2013 10:39:19 EST
+Tyler Szepesi
+
+The idea of this directory is to collect Waterloo created
+programs here so that when moving to new versions of OS161
+we have them all in one place and we know what we need
+to move/port. Its structure and functionality is
+similar to the testbin except to simply the
+Makefile in each directory they all include uw-prog.mk
+from this directory.
+
+Here we provide a very brief description of the different tests. More
+information about each individual test is available in the source files.
+
+syscall   - example program: how a syscall works used in the course notes
+segments  - example program: how different segments used in the course notes
+argtest   - is a useful program that I ask people to use when 
+            when trying to implement argc/argv.
+
+common    - some code that is common to some of the vm-* tests
+vm-*      - are a bunch of different test programs I wrote
+            to try to test the VM subsystem for assignment 3.
+
+lib       - some libraries that are used by other programs
+files1    - test a number of relatively simple case for
+files2      open, close, read and write
+writeread - write stuff to a file and then read it and ensure what
+            is read matches what was written
+conc-io   - tests concurrent writes and atomicity
+
+fork_*   - test funtionality of file i/o in conjunction with fork
+
+The following tests were created by students as part of an initiative to
+improve the suite of tests available.
+
+adrian2     - test i/o after fork
+adrian3     - test memory management when memory is filled
+jeremy2     - test i/o after fork
+samuel2     - test i/o after fork
+stephen3    - test efficiency of page replacement

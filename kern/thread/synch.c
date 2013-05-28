@@ -9,6 +9,7 @@
 #include <thread.h>
 #include <curthread.h>
 #include <machine/spl.h>
+#include "opt-A1.h"
 
 ////////////////////////////////////////////////////////////
 //
@@ -97,7 +98,6 @@ V(struct semaphore *sem)
 ////////////////////////////////////////////////////////////
 //
 // Lock.
-
 struct lock *
 lock_create(const char *name)
 {
@@ -113,9 +113,10 @@ lock_create(const char *name)
 		kfree(lock);
 		return NULL;
 	}
-	
-	// add stuff here as needed
-	
+	#if OPT_A1
+	lock->isUsed = 0;
+	lock->lockHolder = NULL;
+	#endif
 	return lock;
 }
 
@@ -124,8 +125,20 @@ lock_destroy(struct lock *lock)
 {
 	assert(lock != NULL);
 
-	// add stuff here as needed
-	
+	#if OPT_A1
+	int spl;
+	spl = splhigh();
+	assert(thread_hassleepers(lock)==0);
+	splx(spl);
+	#endif
+	/*
+	 * Note: while someone could theoretically start sleeping on
+	 * the semaphore after the above test but before we free it,
+	 * if they're going to do that, they can just as easily wait
+	 * a bit and start sleeping on the semaphore after it's been
+	 * freed. Consequently, there's not a whole lot of point in 
+	 * including the kfrees in the splhigh block, so we don't.
+	 */
 	kfree(lock->name);
 	kfree(lock);
 }
@@ -133,27 +146,53 @@ lock_destroy(struct lock *lock)
 void
 lock_acquire(struct lock *lock)
 {
-	// Write this
+	#if OPT_A1
+	int spl;
+	assert(lock != NULL);
+	assert(in_interrupt==0);
 
-	(void)lock;  // suppress warning until code gets written
+	spl = splhigh();
+	assert(lock_do_i_hold(lock) == 0);
+	while (lock->isUsed==1) {
+		thread_sleep(lock);
+	}
+	assert(lock->isUsed==0);
+	assert(lock->lockHolder == NULL);
+	lock->lockHolder = curthread;
+	lock->isUsed = 1;
+	splx(spl);
+	#endif
 }
 
 void
 lock_release(struct lock *lock)
 {
-	// Write this
+	#if OPT_A1
+	int spl;
+	assert(lock != NULL);
+	spl = splhigh();
+	lock->isUsed = 0;
+	lock->lockHolder = NULL;
+	assert(lock->isUsed==0);
+	assert(lock->lockHolder == NULL);
+	thread_wakeup(lock);
+	splx(spl);
+	#endif
 
-	(void)lock;  // suppress warning until code gets written
 }
 
 int
 lock_do_i_hold(struct lock *lock)
 {
-	// Write this
-
-	(void)lock;  // suppress warning until code gets written
-
-	return 1;    // dummy until code gets written
+	#if OPT_A1
+	int spl;
+	spl = splhigh();
+	int result = (curthread == lock->lockHolder);
+	splx(spl);	
+	return result;
+	#else
+	return 1;
+	#endif
 }
 
 ////////////////////////////////////////////////////////////

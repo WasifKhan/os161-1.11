@@ -21,7 +21,7 @@
 #include <test.h>
 #include <thread.h>
 #include <synch.h>
-
+#include "opt-A1.h"
 /*
  * 
  * cat,mouse,bowl simulation functions defined in bowls.c
@@ -40,7 +40,6 @@
 
 /* this must be called before any calls to cat_eat or mouse_eat */
 extern int initialize_bowls(unsigned int bowlcount);
-
 extern void cleanup_bowls( void );
 extern void cat_eat(unsigned int bowlnumber);
 extern void mouse_eat(unsigned int bowlnumber);
@@ -66,20 +65,51 @@ int NumBowls;  // number of food bowls
 int NumCats;   // number of cats
 int NumMice;   // number of mice
 int NumLoops;  // number of times each cat and mouse should eat
-
+int* bowlArray;
+int turn;
+int catsWaiting;
+int miceWaiting;
+int catsAlreadyWent;
+int miceAlreadyWent;
 /*
  * Once the main driver function (catmouse()) has created the cat and mouse
  * simulation threads, it uses this semaphore to block until all of the
  * cat and mouse simulations are finished.
  */
-struct semaphore *CatMouseWait;
-
+struct semaphor* CatMouseWait;
+struct lock* bowlLock;
+struct cv* micE;
+struct cv* catS;
 /*
  * 
  * Function Definitions
  * 
  */
 
+int empty()
+{
+	int i;
+	for (i = 1; i <= NumBowls; i++)
+	{
+		if (bowlArray[i] == 1)
+		{
+			return 0;
+		}
+	}
+	return 1;
+}
+int findFree()
+{
+	int i;
+	for (i = 1; i <= NumBowls; i++)
+	{
+		if (bowlArray[i] == 0)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
 
 /*
  * cat_simulation()
@@ -112,29 +142,48 @@ cat_simulation(void * unusedpointer,
   (void) catnumber;
 
 
-  /* your simulated cat must iterate NumLoops times,
-   *  sleeping (by calling cat_sleep() and eating
-   *  (by calling cat_eat()) on each iteration */
   for(i=0;i<NumLoops;i++) {
 
-    /* do not synchronize calls to cat_sleep().
-       Any number of cats (and mice) should be able
-       sleep at the same time. */
-    cat_sleep();
-
-    /* for now, this cat chooses a random bowl from
-     * which to eat, and it is not synchronized with
-     * other cats and mice.
-     *
-     * you will probably want to control which bowl this
-     * cat eats from, and you will need to provide 
-     * synchronization so that the cat does not violate
-     * the rules when it eats */
-
     /* legal bowl numbers range from 1 to NumBowls */
-    bowl = ((unsigned int)random() % NumBowls) + 1;
+#if OPT_A1
+	lock_acquire(bowlLock);
+	if (turn == -1)
+	{
+		turn = 1;
+	}
+	while(turn != 1 || (turn == 1 && catsAlreadyWent > 0 && miceWaiting > 0) || findFree() == -1)
+	{
+		catsWaiting ++;
+		cv_wait(catS, bowlLock);
+	}
+	int eatAt = findFree();
+	bowl = (unsigned int)eatAt;
+	bowlArray[eatAt] = 1;
+	lock_release(bowlLock);
+
     cat_eat(bowl);
 
+
+	lock_acquire(bowlLock);
+	bowlArray[eatAt] = 0;
+	catsAlreadyWent ++;
+	if (empty() && miceWaiting > 0)
+	{
+		turn = 0;
+		cv_broadcast(micE, bowlLock);
+		miceWaiting = 0;
+		miceAlreadyWent = 0;
+	}
+	else
+	{
+		cv_broadcast(catS, bowlLock);
+	}
+	lock_release(bowlLock);
+
+#else
+    bowl = ((unsigned int)random() % NumBowls) + 1;
+    cat_eat(bowl);
+#endif
   }
 
   /* indicate that this cat simulation is finished */
@@ -159,7 +208,6 @@ cat_simulation(void * unusedpointer,
  *      in the assignment description
  *
  */
-
 static
 void
 mouse_simulation(void * unusedpointer,
@@ -173,29 +221,47 @@ mouse_simulation(void * unusedpointer,
   (void) mousenumber;
 
 
-  /* your simulated mouse must iterate NumLoops times,
-   *  sleeping (by calling mouse_sleep()) and eating
-   *  (by calling mouse_eat()) on each iteration */
   for(i=0;i<NumLoops;i++) {
 
-    /* do not synchronize calls to mouse_sleep().
-       Any number of mice (and cats) should be able
-       sleep at the same time. */
-    mouse_sleep();
-
-    /* for now, this mouse chooses a random bowl from
-     * which to eat, and it is not synchronized with
-     * other cats and mice.
-     *
-     * you will probably want to control which bowl this
-     * mouse eats from, and you will need to provide 
-     * synchronization so that the mouse does not violate
-     * the rules when it eats */
-
     /* legal bowl numbers range from 1 to NumBowls */
+#if OPT_A1
+	lock_acquire(bowlLock);
+	if (turn == -1)
+	{
+		turn = 0;
+	}
+	while(turn != 0 || (turn == 0 && miceAlreadyWent > 0 && catsWaiting > 0) || findFree() == -1)
+	{
+		miceWaiting ++;
+		cv_wait(micE, bowlLock);
+	}
+	int eatAt = findFree();
+	bowl = (unsigned int)eatAt;
+	bowlArray[eatAt] = 1;
+	lock_release(bowlLock);
+	
+	mouse_eat(bowl);
+	
+	lock_acquire(bowlLock);
+	bowlArray[eatAt] = 0;
+	miceAlreadyWent ++;
+	if (empty() && catsWaiting > 0)
+	{
+		turn = 1;
+		cv_broadcast(catS, bowlLock);
+		catsWaiting = 0;
+		catsAlreadyWent = 0;
+	}
+	else
+	{
+		cv_broadcast(micE, bowlLock);
+	}
+	lock_release(bowlLock);
+
+#else
     bowl = ((unsigned int)random() % NumBowls) + 1;
     mouse_eat(bowl);
-
+#endif
   }
 
   /* indicate that this mouse is finished */
@@ -235,6 +301,7 @@ catmouse(int nargs,
 {
   int index, error;
   int i;
+  int bowlInit;
 
   /* check and process command line arguments */
   if (nargs != 5) {
@@ -269,6 +336,21 @@ catmouse(int nargs,
   /* create the semaphore that is used to make the main thread
      wait for all of the cats and mice to finish */
   CatMouseWait = sem_create("CatMouseWait",0);
+
+  #if OPT_A1
+  bowlArray = kmalloc((NumBowls+1)*(sizeof(int)));
+  for (bowlInit = 0; bowlInit <= NumBowls; bowlInit++)
+  {
+	  bowlArray[bowlInit] = 0;
+  }
+  bowlLock = lock_create("bowlLock");
+  micE = cv_create("micE");
+  catS = cv_create("catS");
+  turn = -1;
+  catsWaiting = 0;
+  miceWaiting = 0;
+  #endif
+
   if (CatMouseWait == NULL) {
     panic("catmouse: could not create semaphore\n");
   }
@@ -309,6 +391,12 @@ catmouse(int nargs,
   /* clean up the semaphore that we created */
   sem_destroy(CatMouseWait);
 
+#if OPT_A1
+	lock_destroy(bowlLock);
+	cv_destroy(catS);
+	cv_destroy(micE);
+	kfree(bowlArray);
+#endif
   /* clean up resources used for tracking bowl use */
   cleanup_bowls();
 

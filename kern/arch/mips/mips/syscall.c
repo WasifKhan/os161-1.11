@@ -45,6 +45,45 @@
  * arch/mips/include/types.h.)
  */
 
+#if OPT_A2
+void sys__exit(int exitcode)
+{
+}
+int sys_write(int fd, const void* buf, size_t nbytes>)
+{
+}
+
+int sys_open(const char* filename, int flags)
+{
+}
+
+int sys_close(int fd)
+{
+}
+
+int sys_read(int fd, void* buf, size_t buflen)
+{
+}
+
+pid_t sys_fork(void)
+{
+}
+
+pid_t sys_getpid(void)
+{
+}
+
+pid_t sys_waitpid(pid_t pid, int* status, int options)
+{
+}
+
+int sys_execv(const char* program, char** args)
+{
+}
+
+#endif
+
+
 void
 mips_syscall(struct trapframe *tf)
 {
@@ -72,6 +111,34 @@ mips_syscall(struct trapframe *tf)
 		err = sys_reboot(tf->tf_a0);
 		break;
 
+#if OPT_A2
+		case SYS_open:
+		break;
+
+		case SYS_close:
+		break;
+
+		case SYS_read:
+		break;
+
+		case SYS_write:
+		break;
+
+		case SYS_fork:
+		break;
+
+		case SYS_getpid:
+		break;
+
+		case SYS_waitpid:
+		break;
+
+		case SYS__exit:
+		break;
+
+		case SYS_execv:
+		break;
+#endif
 	    /* Add stuff here */
  
 	    default:

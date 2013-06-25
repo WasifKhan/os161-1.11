@@ -7,7 +7,9 @@
 #include <kern/callno.h>
 #include <syscall.h>
 
-
+#if OPT_A2
+#include <thread.h>
+#endif
 /*
  * System call handler.
  *
@@ -45,9 +47,12 @@
  * arch/mips/include/types.h.)
  */
 
+
+
 #if OPT_A2
 void sys__exit(int exitcode)
 {
+	thread_exit();
 }
 int sys_write(int fd, const void* buf, size_t nbytes>)
 {

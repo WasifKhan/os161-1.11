@@ -9,6 +9,7 @@
 
 #if OPT_A2
 #include <thread.h>
+//test
 #endif
 /*
  * System call handler.

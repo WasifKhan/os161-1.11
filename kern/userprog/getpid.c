@@ -4,6 +4,6 @@
 #include <getpid.h>
 
 
-pid_t getpid()
+pid_t sys_getpid()
 {
 }

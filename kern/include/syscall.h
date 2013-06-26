@@ -20,4 +20,7 @@ pid_t sys_getpid(void);
 pid_t sys_waitpid(pid_t pid, int* status, int options);
 
 int sys_execv(const char* program, char** args);
+#endif
+
 #endif /* _SYSCALL_H_ */
+

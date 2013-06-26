@@ -9,7 +9,6 @@
 
 #if OPT_A2
 #include <thread.h>
-//test
 #endif
 /*
  * System call handler.
@@ -57,7 +56,7 @@ void sys__exit(int exitcode)
 }
 int sys_write(int fd, const void* buf, size_t nbytes>)
 {
-
+	kprintf("Test1\n");
 }
 
 int sys_open(const char* filename, int flags)

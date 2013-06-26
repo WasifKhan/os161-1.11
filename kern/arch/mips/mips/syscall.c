@@ -88,6 +88,7 @@ mips_syscall(struct trapframe *tf)
 		break;
 
 		case SYS_read:
+			retval = sys_read((int)tf->tf_a0, (void*)tf->tf_a1, (size_t)tf->tf_a2);
 		break;
 
 		case SYS_write:
@@ -98,6 +99,7 @@ mips_syscall(struct trapframe *tf)
 		break;
 
 		case SYS_fork:
+			retval = sys_fork();
 		break;
 
 		case SYS_getpid:
@@ -105,6 +107,7 @@ mips_syscall(struct trapframe *tf)
 		break;
 
 		case SYS_waitpid:
+			retval = sys_waitpid((pid_t)tf->tf_a0, (int*)tf->tf_a1, (int)tf->tf_a2);
 		break;
 
 		case SYS__exit:
@@ -112,6 +115,7 @@ mips_syscall(struct trapframe *tf)
 		break;
 
 		case SYS_execv:
+			retval = sys_execv((const char*)tf->tf_a0, (char**)tf->tf_a1);
 		break;
  
 	    default:

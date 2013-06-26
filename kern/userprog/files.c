@@ -4,8 +4,12 @@
 #include <files.h>
 
 int sys_write(int fd, const void* buf, size_t nbytes) {
-	kprintf("%s", (char*)buf);
-	return 1;
+	if (fd == 1) {
+      kprintf((char*)buf);
+   } else {
+      kprintf("Something else\n");
+	}
+   return 1;
 }
 
 int sys_open(const char* filename, int flags) {

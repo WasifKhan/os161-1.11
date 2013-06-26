@@ -1,9 +1,9 @@
 #include <types.h>
 #include <lib.h>
 #include <thread.h>
-#include <fork.h>
+#include <getpid.h>
 
-pid_t sys_fork()
+
+pid_t getpid()
 {
 }
-

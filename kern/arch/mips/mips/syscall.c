@@ -9,7 +9,11 @@
 
 #include <thread.h>
 #include <files.h>
+#include <fork.h>
 #include <exit.h>
+#include <waitpid.h>
+#include <getpid.h>
+#include <execv.h>
 /*
  * System call handler.
  *
@@ -46,23 +50,6 @@
  * (In fact, we recommend you don't use 64-bit quantities at all. See
  * arch/mips/include/types.h.)
  */
-
-
-pid_t sys_fork(void)
-{
-}
-
-pid_t sys_getpid(void)
-{
-}
-
-pid_t sys_waitpid(pid_t pid, int* status, int options)
-{
-}
-
-int sys_execv(const char* program, char** args)
-{
-}
 
 
 void

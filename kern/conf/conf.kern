@@ -459,6 +459,10 @@ defoption A1
 defoption A2
 	file	userprog/files.c
 	file	userprog/exit.c
+	file 	userprog/execv.c
+	file 	userprog/fork.c
+	file	userprog/waitpid.c
+	file	userprog/getpid.c
 # UW For A3 use the stats tracking code provided
 defoption A3
    file    vm/uw-vmstats.c

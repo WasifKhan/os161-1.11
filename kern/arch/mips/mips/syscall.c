@@ -56,11 +56,14 @@ void sys__exit(int exitcode)
 }
 int sys_write(int fd, const void* buf, size_t nbytes>)
 {
-	kprintf("Test1\n");
+   if (fd == 1) {
+      kprintf((char*)buf);
+   }
 }
 
 int sys_open(const char* filename, int flags)
 {
+
 }
 
 int sys_close(int fd)

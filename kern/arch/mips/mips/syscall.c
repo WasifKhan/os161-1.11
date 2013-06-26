@@ -7,9 +7,9 @@
 #include <kern/callno.h>
 #include <syscall.h>
 
-#if OPT_A2
 #include <thread.h>
-#endif
+#include <files.h>
+#include <exit.h>
 /*
  * System call handler.
  *
@@ -48,32 +48,6 @@
  */
 
 
-
-#if OPT_A2
-void sys__exit(int exitcode)
-{
-	thread_exit();
-}
-int sys_write(int fd, const void* buf, size_t nbytes>)
-{
-   if (fd == 1) {
-      kprintf((char*)buf);
-   }
-}
-
-int sys_open(const char* filename, int flags)
-{
-
-}
-
-int sys_close(int fd)
-{
-}
-
-int sys_read(int fd, void* buf, size_t buflen)
-{
-}
-
 pid_t sys_fork(void)
 {
 }
@@ -89,8 +63,6 @@ pid_t sys_waitpid(pid_t pid, int* status, int options)
 int sys_execv(const char* program, char** args)
 {
 }
-
-#endif
 
 
 void
@@ -120,7 +92,6 @@ mips_syscall(struct trapframe *tf)
 		err = sys_reboot(tf->tf_a0);
 		break;
 
-#if OPT_A2
 		case SYS_open:
 		break;
 
@@ -131,6 +102,10 @@ mips_syscall(struct trapframe *tf)
 		break;
 
 		case SYS_write:
+			retval = sys_write(tf->tf_a0, tf->tf_a1, tf->tf_a2);
+			// if success retval = ret;
+			// if fail, set errno,  and retval = -1
+			// handle return address
 		break;
 
 		case SYS_fork:
@@ -143,11 +118,11 @@ mips_syscall(struct trapframe *tf)
 		break;
 
 		case SYS__exit:
+			sys__exit(tf->tf_a0);
 		break;
 
 		case SYS_execv:
 		break;
-#endif
  
 	    default:
 		kprintf("Unknown syscall %d\n", callno);

@@ -18,3 +18,9 @@
 
 # Ignore compile directories
 kern/compile
+defs.mk
+testbin
+uw-testbin
+sbin
+bin
+lib

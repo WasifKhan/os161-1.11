@@ -7,7 +7,7 @@ int sys_write(int fd, const void* buf, size_t nbytes) {
 	if (fd == 1) {
       kprintf((char*)buf);
    } else {
-      kprintf("Something else\n");
+      kprintf("Something else %d\n", fd);
 	}
    return 1;
 }

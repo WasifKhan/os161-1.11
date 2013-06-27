@@ -15,6 +15,15 @@
 #include <vfs.h>
 #include <test.h>
 
+
+int fourMultiple(int n)
+{
+	while (n%4 != 0)
+	{
+		n += 1;
+	}
+	return n;
+}
 /*
  * Load program "progname" and start running it in usermode.
  * Does not return except on error.
@@ -22,10 +31,11 @@
  * Calls vfs_open on progname and thus may destroy it.
  */
 int
-runprogram(char *progname)
+runprogram(char *progname, int argc, char** argv)
 {
 	struct vnode *v;
 	vaddr_t entrypoint, stackptr;
+	userptr_t varaddr;
 	int result;
 
 	/* Open the file. */
@@ -65,8 +75,36 @@ runprogram(char *progname)
 		return result;
 	}
 
+	char* user_argv[argc+1];
+
+	int arg_index;
+	size_t len;
+	size_t copied;
+	for (arg_index = 0; arg_index < argc; arg_index++) 
+	{
+		len = strlen(argv[arg_index]) + 1;
+
+		// Adjust the string base
+		stackptr -= len;
+		stackptr -= stackptr%4;
+
+		result = copyoutstr(argv[arg_index], (userptr_t) stackptr, len, &copied);
+
+		user_argv[arg_index] = (char*) stackptr;
+	}
+
+	user_argv[arg_index] = NULL;
+	stackptr -= 4*(argc+1);
+	result = copyout(user_argv, (userptr_t) stackptr, 4*(argc+1));
+	assert(result == 0);
+
+	varaddr = (userptr_t) stackptr;
+
+	stackptr -= 4;
+	stackptr -= stackptr%8;
+
 	/* Warp to user mode. */
-	md_usermode(0 /*argc*/, NULL /*userspace addr of argv*/,
+	md_usermode(argc /*argc*/, varaddr /*userspace addr of argv*/,
 		    stackptr, entrypoint);
 	
 	/* md_usermode does not return */

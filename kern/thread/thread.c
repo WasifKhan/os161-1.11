@@ -13,6 +13,10 @@
 #include <addrspace.h>
 #include <vnode.h>
 #include "opt-synchprobs.h"
+#include <pidHandler.h>
+
+//create the PID_handler
+struct PID_handler * pids;
 
 /* States a thread can be in. */
 typedef enum {
@@ -58,10 +62,10 @@ thread_create(const char *name)
 	thread->t_vmspace = NULL;
 
 	thread->t_cwd = NULL;
-	
-	// If you add things to the thread structure, be sure to initialize
+   thread->pid = getPID(pids);	
+	thread->waitedOn = 0;
+   // If you add things to the thread structure, be sure to initialize
 	// them here.
-	
 	return thread;
 }
 
@@ -87,8 +91,13 @@ thread_destroy(struct thread *thread)
 	if (thread->t_stack) {
 		kfree(thread->t_stack);
 	}
-
-	kfree(thread->t_name);
+   
+   ///////////////////////////////////
+   if (thread->waitedOn == 0) {
+      returnPID(thread->pid, pids);
+   }
+	///////////////////////////////////
+   kfree(thread->t_name);
 	kfree(thread);
 }
 
@@ -114,6 +123,9 @@ exorcise(void)
 	/* Shrinking the array; not supposed to be able to fail. */
 	assert(result==0);
 }
+
+
+
 
 /*
  * Kill all sleeping threads. This is used during panic shutdown to make 
@@ -207,7 +219,12 @@ thread_bootstrap(void)
 {
 	struct thread *me;
 
-	/* Create the data structures we need. */
+   //////////////////////////////////////////////// 
+   //initiate pid_handler
+   pids = createHandler();
+   ///////////////////////////////////////////////
+	
+   /* Create the data structures we need. */
 	sleepers = array_create();
 	if (sleepers==NULL) {
 		panic("Cannot create sleepers array\n");

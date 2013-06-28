@@ -457,6 +457,7 @@ defoption A0
 file		main/hello.c
 defoption A1
 defoption A2
+   file  thread/pidHandler.c
 	file	userprog/files.c
 	file	userprog/exit.c
 	file 	userprog/execv.c

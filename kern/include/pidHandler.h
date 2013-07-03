@@ -5,6 +5,7 @@
 struct PID_handler {
    int pidCounter;
    struct queue * recycled;
+   struct array * flags;
 };
 
 int getPID(struct PID_handler * handler);

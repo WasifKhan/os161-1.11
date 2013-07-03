@@ -111,13 +111,6 @@ thread_destroy(struct thread *thread)
    kfree(thread->t_name);
 
 
-	// for freeing the names of stdin/out/err
-/*
-	kfree((thread->fdTable[0])->name);
-	kfree((thread->fdTable[1])->name);
-	kfree((thread->fdTable[2])->name);
-	// ********
-*/
 	kfree(thread->t_name);
 	kfree(thread);
 }

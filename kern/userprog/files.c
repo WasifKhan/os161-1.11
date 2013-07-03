@@ -19,6 +19,8 @@ int findFree()
 }
 
 int sys_write(int fd, const void* buf, size_t nbytes) {
+	
+	// Used to initialize standard in/out/err for a given thread (moved from thread_create because of bootstrap problem
 	int counter;
 	
 	struct fdesc stdInput;
@@ -67,7 +69,7 @@ int sys_write(int fd, const void* buf, size_t nbytes) {
 	{
 		(curthread->fdTable)[counter] = NULL;
 	}
-	
+	// ******************
 	if (fd == 1) {
       kprintf((char*)buf);
    } else {
@@ -106,8 +108,10 @@ int sys_open(const char* filename, int flags) {
 }
 
 int sys_close(int fd) {
-	// need to free the name field in fdesc struct
-	return 1;
+	vfs_close(curthread->fdTable[fd]->vn);
+	kfree((curthread->fdTable[fd])->name);
+	curthread->fdTable[fd] = NULL;
+	return 0;
 }
 
 int sys_read(int fd, void* buf, size_t buflen) {

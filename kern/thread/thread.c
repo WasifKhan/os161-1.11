@@ -4,6 +4,7 @@
 #include <types.h>
 #include <lib.h>
 #include <kern/errno.h>
+#include <kern/unistd.h>
 #include <array.h>
 #include <machine/spl.h>
 #include <machine/pcb.h>
@@ -17,6 +18,8 @@
 
 //create the PID_handler
 struct PID_handler * pids;
+#include "vfs.h"
+#include "files.h"
 
 /* States a thread can be in. */
 typedef enum {
@@ -66,7 +69,15 @@ thread_create(const char *name)
 	thread->waitedOn = 0;
    // If you add things to the thread structure, be sure to initialize
 	// them here.
+
+	// If you add things to the thread structure, be sure to initialize
+	// them here.
+	
+	// for file input - creates the fdesc table
+
 	return thread;
+
+	// **************
 }
 
 /*
@@ -98,6 +109,16 @@ thread_destroy(struct thread *thread)
    }
 	///////////////////////////////////
    kfree(thread->t_name);
+
+
+	// for freeing the names of stdin/out/err
+/*
+	kfree((thread->fdTable[0])->name);
+	kfree((thread->fdTable[1])->name);
+	kfree((thread->fdTable[2])->name);
+	// ********
+*/
+	kfree(thread->t_name);
 	kfree(thread);
 }
 

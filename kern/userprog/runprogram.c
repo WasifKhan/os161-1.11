@@ -16,14 +16,6 @@
 #include <test.h>
 
 
-int fourMultiple(int n)
-{
-	while (n%4 != 0)
-	{
-		n += 1;
-	}
-	return n;
-}
 /*
  * Load program "progname" and start running it in usermode.
  * Does not return except on error.

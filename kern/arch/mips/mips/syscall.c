@@ -57,7 +57,7 @@ mips_syscall(struct trapframe *tf)
 {
 	int callno;
 	int32_t retval;
-	int err;
+	int err = 0;
 
 	assert(curspl==0);
 

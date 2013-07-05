@@ -8,6 +8,7 @@
 
 struct fdesc
 {
+	int isOpen;
 	char* name;
 	int flags;
 	off_t offset;

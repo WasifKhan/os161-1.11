@@ -74,7 +74,12 @@ thread_create(const char *name)
 	// them here.
 	
 	// for file input - creates the fdesc table
-
+	thread->init = 0;
+	int counter;
+	for (counter = 3; counter < 100; counter++)
+	{
+		thread->fdTable[counter] = NULL;
+	}
 	return thread;
 
 	// **************

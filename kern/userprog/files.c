@@ -152,26 +152,44 @@ int sys_close(int fd, int* errno) {
 
 // **********************
 // WRITE
+
+// STILL NEED TO DO ENOSPACE ERROR
+int error_write(int fd, int* errno, void* buf)
+{
+	// Error check for valid fd
+	if (fd < 0 || fd >= 100 || curthread->fdTable[fd]==NULL)
+	{
+		*errno = EBADF;
+		return 1;
+	}
+	// Error check for RDONLY
+	else if (curthread->fdTable[fd]->flags == O_RDONLY)
+	{
+		*errno = EBADF;
+		return 1;
+	}
+	// Error for bad address (kernel address)
+	else if (buf >= 0x80000000)
+	{
+		*errno = EFAULT;
+		return 1;
+	}
+	return 0;
+}
 int sys_write(int fd, const void* buf, size_t nbytes, int* errno) {
 	if (curthread->init == 0)
 	{
 		openConsoles();
 		curthread->init = 1;
 	}
-	// Error check for valid fd
-	if (fd < 0 || fd > 99)
+	if (error_write(fd, errno, buf))
 	{
-		return EBADF;
+		return -1;
 	}
 
 	int ret;
 	struct fdesc* curFile = curthread->fdTable[fd];
 	assert(curFile != NULL);
-	// Error check for RDONLY
-	if (curFile->flags == O_RDONLY)
-	{
-		return EBADF;
-	}
 
 	// set up uio for writing
 	struct uio u;
@@ -195,27 +213,44 @@ int sys_write(int fd, const void* buf, size_t nbytes, int* errno) {
 	ret = nbytes - u.uio_resid;
 
 	curFile->offset = u.uio_offset;
-   return ret;
+	return ret;
 }
 // ***********************
 
 
 // *********************
 // READ
-int sys_read(int fd, void* buf, size_t buflen, int* errno) {
-	int ret;
+int error_read(int fd, int* errno, void* buf)
+{
+	// Error check for invalid fd
+	if (fd < 0 || fd >= 100  || curthread->fdTable[fd] == NULL)
+	{
+		*errno = EBADF;
+		return 1;
+	}
+	// Error check for not open for read
+	else if(curthread->fdTable[fd]->flags == O_WRONLY)
+	{
+		*errno = EBADF;
+		return 1;
+	}
+	// Error check for invalid address pointer
+	else if (buf >= 0x80000000)
+	{
+		*errno = EFAULT;
+		return 1;
+	}
+	return 0;
+}
 
-	// error check for unvalid fd
-	if (fd < 0 || fd > 99)
+int sys_read(int fd, void* buf, size_t buflen, int* errno) {
+	if (error_read(fd, errno, buf))
 	{
-		return EBADF;
+		return -1;
 	}
+	int ret;
 	struct fdesc* curFile = curthread->fdTable[fd];
-	// error check for WRITEONLY
-	if (curFile->flags == O_WRONLY)
-	{
-		return EBADF;
-	}
+	
 	struct uio u;
 	// set up uio for reading
 	u.uio_iovec.iov_un.un_ubase = buf;

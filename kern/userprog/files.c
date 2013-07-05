@@ -12,9 +12,11 @@
 #include <kern/errno.h>
 #include <addrspace.h>
 
-	// Used to initialize standard in/out/err for a given thread (moved from thread_create because of bootstrap problem
-	// ******************
-	
+
+// HELPER FUNCTIONS
+// *****************************
+
+// Used to initialize standard in/out/err for a given thread (moved from thread_create because of bootstrap problem
 void openConsoles()
 {
 	int counter;
@@ -65,18 +67,24 @@ void openConsoles()
 	curthread->fdTable[2] = stdError;
 }
 
+
+// finds a free fd in fdTable
 int findFree()
 {
 	int counter = 3;
-	while (curthread->fdTable[counter]!=NULL)
+	while (curthread->fdTable[counter] != NULL)
 	{
 		counter ++;
 	}
 	return counter;
 }
+// *****************************
 
 
-int sys_open(const char* filename, int flags) {
+
+// *************************
+// OPEN
+int sys_open(const char* filename, int flags, int* errno) {
 // NEED A CHECK TO SEE IF FILE ALREADY EXISTS
 
 	// finds open fd
@@ -106,8 +114,33 @@ int sys_open(const char* filename, int flags) {
 	curthread->fdTable[freeFd]= openFile;
 	return freeFd;
 }
+// *********************
 
-int sys_close(int fd) {
+
+// *********************
+// CLOSE
+int error_close(int fd, int* errno)
+{
+	// checks for invalid fd
+	if (fd < 0 || fd >= 100 || curthread->fdTable[fd] == NULL)
+	{
+		*errno = EBADF;
+		return 1;
+	}
+	// checks for trying to close stdin/out/err
+	else if (fd == 0 || fd == 1 || fd == 2)
+	{
+		*errno = EBADF;
+		return 1;
+	}
+	return 0;
+}
+
+int sys_close(int fd, int* errno) {
+	if (error_close(fd, errno))
+	{
+		return -1;
+	}
 	vfs_close(curthread->fdTable[fd]->vn);
 	lock_destroy(curthread->fdTable[fd]->lock);
 	kfree((curthread->fdTable[fd])->name);
@@ -115,8 +148,11 @@ int sys_close(int fd) {
 	curthread->fdTable[fd] = NULL;
 	return 0;
 }
+// **********************
 
-int sys_write(int fd, const void* buf, size_t nbytes) {
+// **********************
+// WRITE
+int sys_write(int fd, const void* buf, size_t nbytes, int* errno) {
 	if (curthread->init == 0)
 	{
 		openConsoles();
@@ -161,13 +197,21 @@ int sys_write(int fd, const void* buf, size_t nbytes) {
 	curFile->offset = u.uio_offset;
    return ret;
 }
-int sys_read(int fd, void* buf, size_t buflen) {
+// ***********************
+
+
+// *********************
+// READ
+int sys_read(int fd, void* buf, size_t buflen, int* errno) {
 	int ret;
+
+	// error check for unvalid fd
 	if (fd < 0 || fd > 99)
 	{
 		return EBADF;
 	}
 	struct fdesc* curFile = curthread->fdTable[fd];
+	// error check for WRITEONLY
 	if (curFile->flags == O_WRONLY)
 	{
 		return EBADF;
@@ -190,3 +234,4 @@ int sys_read(int fd, void* buf, size_t buflen) {
 	curFile->offset = buflen - u.uio_offset;
 	return ret;
 }
+// ***************************

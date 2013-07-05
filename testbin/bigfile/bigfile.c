@@ -45,7 +45,6 @@ main(int argc, char *argv[])
 	printf("Creating a file of size %d\n", size);
 
 	fileid = open(filename, O_WRONLY|O_CREAT|O_TRUNC);
-	printf("got file desc %d\n", fileid);
 	if (fileid < 0) {
 		err(1, "%s: create", filename);
 	}

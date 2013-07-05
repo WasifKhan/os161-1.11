@@ -62,8 +62,8 @@ thread_create(const char *name)
 	thread->t_vmspace = NULL;
 
 	thread->t_cwd = NULL;
+   
    thread->pid = getPID(pids);	
-	thread->waitedOn = 0;
    // If you add things to the thread structure, be sure to initialize
 	// them here.
 	return thread;
@@ -91,12 +91,9 @@ thread_destroy(struct thread *thread)
 	if (thread->t_stack) {
 		kfree(thread->t_stack);
 	}
-   
-   ///////////////////////////////////
-   if (thread->waitedOn == 0) {
-      returnPID(thread->pid, pids);
-   }
-	///////////////////////////////////
+   /////////////////// 
+   returnPID(thread->pid, pids);
+   ///////////////////
    kfree(thread->t_name);
 	kfree(thread);
 }

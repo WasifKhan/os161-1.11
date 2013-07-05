@@ -20,7 +20,7 @@ struct thread {
 	char *t_name;
 	const void *t_sleepaddr;
 	char *t_stack;
-   int pid;
+   pid_t pid;
    int waitedOn;  // 1 if this process is being waited on,0 otherwise
 	/**********************************************************/
 	/* Public thread members - can be used by other code      */

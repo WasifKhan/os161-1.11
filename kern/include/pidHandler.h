@@ -3,13 +3,13 @@
 #include <lib.h>
 
 struct PID_handler {
-   int pidCounter;
-   struct queue * recycled;
+   pid_t pidCounter;
+   struct queue * pids;
    struct array * flags;
 };
 
-int getPID(struct PID_handler * handler);
+pid_t getPID(struct PID_handler * handler);
 
-void returnPID (int id, struct PID_handler * handler);
+void returnPID (pid_t id, struct PID_handler * handler);
 
 struct PID_handler * createHandler ();

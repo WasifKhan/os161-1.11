@@ -39,7 +39,7 @@ static struct array *sleepers;
 static struct array *zombies;
 
 /* Total number of outstanding threads. Does not count zombies[]. */
-static int numthreads;
+int numthreads;
 
 /*
  * Create a thread. This is used both to create the first thread's 
@@ -65,8 +65,8 @@ thread_create(const char *name)
 	thread->t_vmspace = NULL;
 
 	thread->t_cwd = NULL;
+   
    thread->pid = getPID(pids);	
-	thread->waitedOn = 0;
    // If you add things to the thread structure, be sure to initialize
 	// them here.
 
@@ -106,12 +106,9 @@ thread_destroy(struct thread *thread)
 	if (thread->t_stack) {
 		kfree(thread->t_stack);
 	}
-   
-   ///////////////////////////////////
-   if (thread->waitedOn == 0) {
-      returnPID(thread->pid, pids);
-   }
-	///////////////////////////////////
+   /////////////////// 
+   //returnPID(thread->pid, pids);
+   ///////////////////
    kfree(thread->t_name);
 
 
@@ -499,7 +496,7 @@ mi_switch(threadstate_t nextstate)
 void
 thread_exit(void)
 {
-	if (curthread->t_stack != NULL) {
+   if (curthread->t_stack != NULL) {
 		/*
 		 * Check the magic number we put on the bottom end of
 		 * the stack in thread_fork. If these assertions go
@@ -514,7 +511,7 @@ thread_exit(void)
 	}
 
 	splhigh();
-
+   returnPID(curthread->pid, pids);
 	if (curthread->t_vmspace) {
 		/*
 		 * Do this carefully to avoid race condition with
@@ -529,10 +526,11 @@ thread_exit(void)
 		VOP_DECREF(curthread->t_cwd);
 		curthread->t_cwd = NULL;
 	}
-
+   
 	assert(numthreads>0);
 	numthreads--;
-	mi_switch(S_ZOMB);
+	
+   mi_switch(S_ZOMB);
 
 	panic("Thread came back from the dead!\n");
 }

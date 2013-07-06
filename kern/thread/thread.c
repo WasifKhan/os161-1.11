@@ -511,7 +511,20 @@ thread_exit(void)
 		assert(curthread->t_stack[2] == (char)0xda);
 		assert(curthread->t_stack[3] == (char)0x33);
 	}
+	
 
+	// closing all files that are still left open
+	// this situation would occur when a user opens a file then 'logs out'
+	int fileClose;
+	for (fileClose = 0; fileClose < 100; fileClose++)
+	{
+		if (curthread->fdTable[fileClose] != NULL)
+		{
+			vfs_close(curthread->fdTable[fileClose]->vn);
+			kfree(curthread->fdTable[fileClose]);
+			curthread->fdTable[fileClose] = NULL;
+		}
+	}
 	splhigh();
    //kprintf("returning pid %d\n", curthread->pid);
    returnPID(curthread->pid, pids);

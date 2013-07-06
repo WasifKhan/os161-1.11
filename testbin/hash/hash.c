@@ -47,16 +47,15 @@ main(int argc, char *argv[])
 	}
 	
 	fd = open(fname, O_RDONLY, 0664);
-	
+		
 	if (fd<0) { 
 		err(1, "%s", fname);
 	}
-
 	for (;;) {
-		if (read(fd, readbuf, 1) <= 0) break;
+		int ret = read(fd, readbuf, 1);
+		if (ret <= 0) break;
 		j = ((j*8) + (int) readbuf[0]) % HASHP;
 	}
-
 	close(fd);
 	
 	printf("Hash : %d\n", j);

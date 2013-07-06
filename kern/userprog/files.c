@@ -214,7 +214,7 @@ int sys_write(int fd, const void* buf, size_t nbytes, int* errno) {
 	}
 
 	int ret;
-	int spl;
+//	int spl;
 	struct fdesc* curFile = curthread->fdTable[fd];
 	assert(curFile != NULL);
 
@@ -231,9 +231,9 @@ int sys_write(int fd, const void* buf, size_t nbytes, int* errno) {
 	u.uio_space = NULL;
 
 	assert(curFile->vn != NULL);
-	spl = splhigh();
+//	spl = splhigh();
 	ret = VOP_WRITE(curFile->vn, &u);
-	splx(spl);
+//	splx(spl);
 	if (ret != 0)
 	{
 		*errno = ret;
@@ -279,7 +279,7 @@ int sys_read(int fd, void* buf, size_t nbytes, int* errno) {
 		return -1;
 	}
 	int ret;
-	int spl;
+//	int spl;
 
 	struct fdesc* curFile = curthread->fdTable[fd];
 	
@@ -294,9 +294,9 @@ int sys_read(int fd, void* buf, size_t nbytes, int* errno) {
 	u.uio_rw = UIO_READ;
 	u.uio_space = curthread->t_vmspace;
 
-	spl = splhigh();
+//	spl = splhigh();
 	ret = VOP_READ(curFile->vn, &u);
-	splx(spl);
+//	splx(spl);
 	if (ret != 0)
 	{
 		*errno = ret;

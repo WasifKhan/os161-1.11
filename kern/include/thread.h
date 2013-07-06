@@ -41,7 +41,6 @@ struct thread {
 	struct vnode *t_cwd;
 
 	struct fdesc* fdTable[100];
-	int init;
 };
 
 /* Call once during startup to allocate data structures. */

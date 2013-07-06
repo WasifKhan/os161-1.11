@@ -108,9 +108,6 @@ thread_destroy(struct thread *thread)
 	if (thread->t_stack) {
 		kfree(thread->t_stack);
 	}
-   /////////////////// 
-   //returnPID(thread->pid, pids);
-   ///////////////////
    kfree(thread->t_name);
 
 
@@ -671,7 +668,9 @@ mi_threadstart(void *data1, unsigned long data2,
 		}
 	}
 #endif
-	
+
+   //adding useless line so i can push on github
+
 	/* Call the function */
 	func(data1, data2);
 

@@ -17,10 +17,8 @@
 // *****************************
 
 // Used to initialize standard in/out/err for a given thread (moved from thread_create because of bootstrap problem
-void openConsoles()
+void initIn(int* errno)
 {
-	int counter;
-	
 	struct fdesc* stdInput = kmalloc(sizeof(struct fdesc));
 	char* consoleIn = NULL;
 	consoleIn = kstrdup("con:");
@@ -29,31 +27,54 @@ void openConsoles()
 	int ref = 0;
 	struct vnode* stdIn;
 	int ret = vfs_open(consoleIn, mode, &stdIn);
+	if (ret != 0)
+	{
+		*errno = ret;
+	}
 	assert (ret==0);
 	stdInput->flags = mode;
 	stdInput->offset = off;
 	stdInput->ref_count = ref;
 	stdInput->vn = stdIn;
 	curthread->fdTable[0]= stdInput;
+}
 
+
+void initOut(int* errno)
+{
 	struct fdesc* stdOutput = kmalloc(sizeof(struct fdesc));
 	char* consoleOut = NULL;
 	consoleOut = kstrdup("con:");
-	mode = O_WRONLY;
+	int mode = O_WRONLY;
+	int off = 0;
+	int ref = 0;
 	struct vnode* stdOut;
-	vfs_open(consoleOut, mode, &stdOut);
+	int ret = vfs_open(consoleOut, mode, &stdOut);
+	if (ret != 0)
+	{
+		*errno = ret;
+	}
 	stdOutput->flags = mode;
 	stdOutput->offset = off;
 	stdOutput->ref_count = ref;
 	stdOutput->vn = stdOut;
 	curthread->fdTable[1] = stdOutput;
+}
 
+void initErr(int* errno)
+{
 	struct fdesc* stdError = kmalloc(sizeof(struct fdesc));
 	char* consoleErr = NULL;
 	consoleErr = kstrdup("con:");
-	mode = O_WRONLY;
+	int mode = O_WRONLY;
+	int off = 0;
+	int ref = 0;
 	struct vnode* stdErr;
-	vfs_open(consoleErr, mode, &stdErr);
+	int ret = vfs_open(consoleErr, mode, &stdErr);
+	if (ret != 0)
+	{
+		*errno = ret;
+	}
 	stdError->flags = mode;
 	stdError->offset = off;
 	stdError->ref_count = ref;
@@ -203,10 +224,13 @@ int error_write(int fd, int* errno, void* buf)
 	return 0;
 }
 int sys_write(int fd, const void* buf, size_t nbytes, int* errno) {
-	if (curthread->init == 0)
+	if (curthread->fdTable[1] == NULL)
 	{
-		openConsoles();
-		curthread->init = 1;
+		initOut(errno);
+	}
+	if (curthread->fdTable[2] == NULL)
+	{
+		initErr(errno);
 	}
 	if (error_write(fd, errno, buf))
 	{
@@ -274,6 +298,10 @@ int error_read(int fd, int* errno, void* buf)
 }
 
 int sys_read(int fd, void* buf, size_t nbytes, int* errno) {
+	if (curthread->fdTable[0] == NULL)
+	{
+		initIn(errno);
+	}
 	if (error_read(fd, errno, buf))
 	{
 		return -1;

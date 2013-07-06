@@ -31,7 +31,7 @@ void initIn(int* errno)
 	{
 		*errno = ret;
 	}
-	assert (ret==0);
+	stdInput->filename = consoleIn;
 	stdInput->flags = mode;
 	stdInput->offset = off;
 	stdInput->ref_count = ref;
@@ -54,6 +54,7 @@ void initOut(int* errno)
 	{
 		*errno = ret;
 	}
+	stdOutput->filename = consoleOut;
 	stdOutput->flags = mode;
 	stdOutput->offset = off;
 	stdOutput->ref_count = ref;
@@ -75,6 +76,7 @@ void initErr(int* errno)
 	{
 		*errno = ret;
 	}
+	stdError->filename = consoleErr;
 	stdError->flags = mode;
 	stdError->offset = off;
 	stdError->ref_count = ref;
@@ -155,6 +157,7 @@ int sys_open(const char* filename, int flags, int* errno) {
 	}
 	//create the file descriptor
 	struct fdesc* openFile = (struct fdesc*)kmalloc(sizeof(struct fdesc));
+	openFile->filename = kfilename;
 	openFile->flags = flags;
 	openFile->offset = 0;
 	openFile->ref_count = 0;
@@ -191,6 +194,7 @@ int sys_close(int fd, int* errno) {
 		return -1;
 	}
 	vfs_close(curthread->fdTable[fd]->vn);
+	kfree(curthread->fdTable[fd]->filename);
 	kfree((curthread->fdTable[fd]));
 	curthread->fdTable[fd] = NULL;
 	return 0;

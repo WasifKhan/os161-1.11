@@ -101,11 +101,17 @@ pid_t sys_fork(struct trapframe *tf, int * errno)
             splx(spl);
             return -1;
          }
+         kprintf("malloc done\n");
          file->flags = curthread->fdTable[index]->flags;
          //curthread->fdTable[index] = 
+         kprintf("flags set\n");
          file->offset = curthread->fdTable[index]->offset;
+         kprintf("offset set\n");
          file->ref_count = curthread->fdTable[index]->ref_count;
+         kprintf("ref_count\n");
+         
          file->vn = curthread->fdTable[index]->vn;
+         kprintf("vn set\n");
          t->fdTable[index] = file;
          kprintf("done file stuff\n");
       }
@@ -114,6 +120,7 @@ pid_t sys_fork(struct trapframe *tf, int * errno)
          t->fdTable[index] = NULL;
       }
    }
+   kprintf("actuall done file stuff\n");
    //kprintf("\n");
    splx(spl);
    return t->pid;

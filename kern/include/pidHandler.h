@@ -2,6 +2,18 @@
 #include <types.h>
 #include <lib.h>
 
+
+
+/*
+struct process {
+   pid_t mypid;
+   int exitCode;
+   struct thread * t;
+};
+
+struct process * createProcesses (struct PID_handler * handler);
+*/
+
 struct PID_handler {
    pid_t pidCounter;
    struct queue * pids;

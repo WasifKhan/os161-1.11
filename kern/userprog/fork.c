@@ -15,7 +15,7 @@
 #include <vnode.h>
 // ******
 
-extern numthreads;      // NOT SURE
+extern numthreads;
 
 void first_child_function (struct trapframe * tf, unsigned long l) {
    int spl;
@@ -55,7 +55,9 @@ pid_t sys_fork(struct trapframe *tf, int * errno)
 {
    int spl;
    spl = splhigh();
-   //kprintf("starting\n");
+   
+   kprintf("starting fork!\n");
+   
    //initialize a trapframe, and do a deep copy of the parent trapframe 
    struct trapframe * tf_copy = kmalloc(sizeof(struct trapframe));
    
@@ -140,6 +142,7 @@ pid_t sys_fork(struct trapframe *tf, int * errno)
       }
    }
 */
+   kprintf("Done forking!\n \n");
    splx(spl);
    return t->pid;
 }

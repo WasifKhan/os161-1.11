@@ -126,19 +126,17 @@ test(int nowait)
 	 * These must be called in reverse order to avoid waiting
 	 * improperly.
 	 */
-	/*
    dowait(nowait, pid3);
 	dowait(nowait, pid2);
 	dowait(nowait, pid1);
 	dowait(nowait, pid0);
-   */
 	putchar('\n');
 }
 
 int
 main(int argc, char *argv[])
 {
-/*	int nowait=0;
+   int nowait=0;
 
 	if (argc==2 && !strcmp(argv[1], "-w")) {
 		nowait=1;
@@ -151,14 +149,6 @@ main(int argc, char *argv[])
 
 	test(nowait);
 
-	warnx("Complete.");*/
-
-int pid1, pid2, pid3;
-pid1=fork();
-printf("\n0\n");
-pid2=fork();
-printf("\n1\n");
-pid3=fork();
-printf("\n2\n");
+	warnx("Complete.");
 	return 0;
 }

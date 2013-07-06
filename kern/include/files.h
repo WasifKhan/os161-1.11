@@ -8,6 +8,7 @@
 
 struct fdesc
 {
+	const char* filename;
 	int flags;
 	off_t offset;
 	int ref_count;

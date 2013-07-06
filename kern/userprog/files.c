@@ -228,7 +228,13 @@ int error_write(int fd, int* errno, void* buf)
 	return 0;
 }
 int sys_write(int fd, const void* buf, size_t nbytes, int* errno) {
-	if (curthread->fdTable[1] == NULL)
+   // Just in case check
+   if (curthread->fdTable[0] == NULL)
+	{
+		initIn(errno);
+	}
+   // ********
+   if (curthread->fdTable[1] == NULL)
 	{
 		initOut(errno);
 	}
@@ -258,7 +264,7 @@ int sys_write(int fd, const void* buf, size_t nbytes, int* errno) {
 	u.uio_rw = UIO_WRITE;
 	u.uio_space = NULL;
 
-	assert(curFile->vn != NULL);
+   assert(curFile->vn != NULL);
 //	spl = splhigh();
 	ret = VOP_WRITE(curFile->vn, &u);
 //	splx(spl);
@@ -306,7 +312,18 @@ int sys_read(int fd, void* buf, size_t nbytes, int* errno) {
 	{
 		initIn(errno);
 	}
-	if (error_read(fd, errno, buf))
+   // Just in case checks
+   if (curthread->fdTable[1] == NULL)
+	{
+		initOut(errno);
+	}
+	if (curthread->fdTable[2] == NULL)
+	{
+		initErr(errno);
+	}
+   // ********
+
+   if (error_read(fd, errno, buf))
 	{
 		return -1;
 	}

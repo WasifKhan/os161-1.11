@@ -66,7 +66,7 @@ thread_create(const char *name)
 
 	thread->t_cwd = NULL;
    
-   thread->pid = getPID(pids);	
+  // thread->pid = getPID(pids);	
    // If you add things to the thread structure, be sure to initialize
 	// them here.
 
@@ -79,7 +79,9 @@ thread_create(const char *name)
 	{
 		thread->fdTable[counter] = NULL;
 	}
-	return thread;
+   thread->pid = getPID(pids);
+	//kprintf("new pid is %d\n", thread->pid);
+   return thread;
 
 	// **************
 }
@@ -511,8 +513,10 @@ thread_exit(void)
 	}
 
 	splhigh();
+   //kprintf("returning pid %d\n", curthread->pid);
    returnPID(curthread->pid, pids);
-	if (curthread->t_vmspace) {
+	//kprintf("returned pid %d\n", curthread->pid);
+   if (curthread->t_vmspace) {
 		/*
 		 * Do this carefully to avoid race condition with
 		 * context switch code.

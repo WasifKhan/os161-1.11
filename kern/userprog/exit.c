@@ -22,4 +22,5 @@ void sys__exit(int exitcode) {
 		}
 	}	
 	thread_exit();
+   kprintf("exiting sys_exit\n");
 }

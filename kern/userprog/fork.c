@@ -17,9 +17,7 @@
 
 extern numthreads;
 
-void first_child_function (struct trapframe * tf, unsigned long l) {
-   int spl;
-   spl = splhigh();
+void first_child_function (struct trapframe *tf, unsigned long l) { // * tf, struct addrspace * addr) { // unsigned long l) {
    struct trapframe t;
    t = (*tf);
  
@@ -45,10 +43,13 @@ void first_child_function (struct trapframe * tf, unsigned long l) {
    t.tf_epc = t.tf_epc + 4;
    t.tf_a3 = 0;
    t.tf_v0 = 0;
+  
+//   curthread->t_vmspace = addr;
+  // assert (curthread->t_vmspace != NULL);
+   //as_activate(curthread->t_vmspace);
+   //as_activate(curthread->t_vmspace);
    
    kfree(tf);
-   
-   splx(spl);
    mips_usermode(&t);   // does not return
 }
 

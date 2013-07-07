@@ -46,7 +46,6 @@ check(void)
 	int i;
 
 	mypid = getpid();
-	
 	/* Make sure each fork has its own address space. */
 	for (i=0; i<800; i++) {
 		volatile int seenpid;
@@ -72,18 +71,22 @@ static
 void
 dowait(int nowait, int pid)
 {
-	int x;
+/*	int x;
 
 	if (pid<0) {
-		/* fork in question failed; just return */
-		return;
+		// fork in question failed; just return 
+		printf("pid is < 0, woops \n");
+      return;
 	}
+*/
 	if (pid==0) {
+      printf("exiting!\n");
 		/* in the fork in question we were the child; exit */
-		exit(0);
+	//	exit(0);
 	}
-
+/*
 	if (!nowait) {
+      printf("shouldn't get here\n");
 		if (waitpid(pid, &x, 0)<0) {
 			warn("waitpid");
 		}
@@ -91,6 +94,7 @@ dowait(int nowait, int pid)
 			warnx("pid %d: exit %d", pid, x);
 		}
 	}
+   */
 }
 
 /*
@@ -138,11 +142,11 @@ test(int nowait)
       pid2 = dofork();
       putchar ('3');
    }*/
-  /* dowait(nowait, pid3);
+   dowait(nowait, pid3);
 	dowait(nowait, pid2);
 	dowait(nowait, pid1);
 	dowait(nowait, pid0);
-	*/
+	
    putchar('\n');
 }
 

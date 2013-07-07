@@ -63,7 +63,7 @@ void thread_shutdown(void);
  */
 int thread_fork(const char *name, 
 		void *data1, unsigned long data2, 
-		void (*func)(void *, void *),//unsigned long),
+		void (*func)(void *, unsigned long), // void *),//unsigned long),
 		struct thread **ret);
 
 /*

@@ -17,11 +17,12 @@
 
 extern numthreads;
 
-void first_child_function (struct trapframe * tf, unsigned long l) {
+void first_child_function (struct trapframe * tf, struct addrspace * addr) { // unsigned long l) {
    int spl;
    spl = splhigh();
    struct trapframe t;
    t = (*tf);
+
 /*   
    int index;
    for (index = 3; index < 100; index++)
@@ -43,9 +44,13 @@ void first_child_function (struct trapframe * tf, unsigned long l) {
    t.tf_epc = t.tf_epc + 4;
    t.tf_a3 = 0;
    t.tf_v0 = 0;
+  
+   curthread->t_vmspace = addr;
+   assert (curthread->t_vmspace != NULL);
+   as_activate(curthread->t_vmspace);
+   //as_activate(curthread->t_vmspace);
    
    kfree(tf);
-   
    splx(spl);
    mips_usermode(&t);   // does not return
 }
@@ -55,7 +60,6 @@ pid_t sys_fork(struct trapframe *tf, int * errno)
 {
    int spl;
    spl = splhigh();
-   
    //initialize a trapframe, and do a deep copy of the parent trapframe 
    struct trapframe * tf_copy = kmalloc(sizeof(struct trapframe));
    
@@ -64,31 +68,27 @@ pid_t sys_fork(struct trapframe *tf, int * errno)
       splx(spl);
       return -1;
    }
-
-
+   
    *tf_copy = (*tf);
    
-   /*
-   parameters to be passed into first_child_function, which 
-   is passed into thread_fork
-   */
    struct thread * t;
-   unsigned long l = 1;
+   //unsigned long l = 1;
+   int retval;
 
-   /*
-   don't want the child to run right away, so disable interrupts
-   */
-
-   //spl = splhigh();
-   
    if (numthreads > 300) {
       *errno = EAGAIN;
       splx(spl);
       return -1;
    }
-   int retval;
-   //kprintf("forking\n"); 
-   retval = thread_fork("child", tf_copy, l, first_child_function, &t);  
+   
+   struct addrspace * childaddr;
+   as_copy(curthread->t_vmspace, &childaddr);
+   if (childaddr == NULL) {
+      *errno = ENOMEM;
+      splx(spl);
+      return -1;
+   }
+   retval = thread_fork("child", tf_copy, childaddr, first_child_function, &t);  
    //kprintf("done forking\n");
 
    if (retval == ENOMEM) {
@@ -96,24 +96,19 @@ pid_t sys_fork(struct trapframe *tf, int * errno)
       splx(spl);
       return -1;
    }
-
    //kprintf("theres enough memory\n");
    // copy the parents address space, set child's addrspace as the copy
-   struct addrspace * childaddr;
-   retval = as_copy(curthread->t_vmspace, &childaddr);
-   //kprintf("as copied\n");
-   if (retval == ENOMEM) {
-      *errno = ENOMEM;
-      splx(spl);
-      return -1;
-   }
-
-   t->t_vmspace = childaddr;
-   //kprintf("set child's Addrspace\n");
-   as_activate(t->t_vmspace);
-   //kprintf("activated addrspace\n");
-/*
+  /* 
    int index;
+   for (index = 0; index < 100; index++) {
+      t->fdTable[index] = NULL;
+   }
+   */
+   //t->t_vmspace = childaddr;
+   //kprintf("set child's Addrspace\n");
+   //as_activate(t->t_vmspace);
+   //kprintf("activated addrspace\n");
+   /*int index;
    for (index = 0; index < 100; index++)
    {
       if (curthread->fdTable[index] != NULL)
@@ -141,7 +136,7 @@ pid_t sys_fork(struct trapframe *tf, int * errno)
          t->fdTable[index] = NULL;
       }
    }
-*/
+   */
    splx(spl);
    return t->pid;
 }

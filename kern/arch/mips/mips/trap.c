@@ -248,7 +248,6 @@ mips_usermode(struct trapframe *tf)
 	 */
 	splhigh();
 	curspl = 0;
-
 	/*
 	 * This assertion will fail if either
 	 *   (1) curkstack is corrupted, or
@@ -263,11 +262,10 @@ mips_usermode(struct trapframe *tf)
 	 * another thread's stack or in the kernel heap. (Why?)
 	 */
 	assert(SAME_STACK(curkstack-1, (vaddr_t)tf));
-
 	/*
 	 * This actually does it. See exception.S.
 	 */
-	asm_usermode(tf);
+   asm_usermode(tf);
 }
 
 /*

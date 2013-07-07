@@ -17,11 +17,13 @@
 #include "opt-synchprobs.h"
 #include "opt-sfs.h"
 #include "opt-net.h"
-
+#include <array.h>
+#include <queue.h>
+#include <thread.h>
 #define _PATH_SHELL "/bin/sh"
 
 #define MAXMENUARGS  16
-
+extern pids;
 void
 getinterval(time_t s1, u_int32_t ns1, time_t s2, u_int32_t ns2,
 	    time_t *rs, u_int32_t *rns)
@@ -240,8 +242,11 @@ cmd_quit(int nargs, char **args)
 {
 	(void)nargs;
 	(void)args;
-
-	vfs_sync();
+   /*array_destroy(pids->flags);
+   q_destroy(pids->pids);
+   kfree(pids);
+	*/
+   vfs_sync();
 	sys_reboot(RB_POWEROFF);
 	thread_exit();
 	return 0;

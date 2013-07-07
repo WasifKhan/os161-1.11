@@ -80,7 +80,6 @@ thread_create(const char *name)
 		thread->fdTable[counter] = NULL;
 	}
    thread->pid = getPID(pids);
-	//kprintf("new pid is %d\n", thread->pid);
    return thread;
 
 	// **************
@@ -282,7 +281,7 @@ thread_bootstrap(void)
 void
 thread_shutdown(void)
 {
-	array_destroy(sleepers);
+   array_destroy(sleepers);
 	sleepers = NULL;
 	array_destroy(zombies);
 	zombies = NULL;
@@ -298,7 +297,7 @@ thread_shutdown(void)
 int
 thread_fork(const char *name, 
 	    void *data1, unsigned long data2,
-	    void (*func)(void *, unsigned long),
+	    void (*func)(void *, void *),// unsigned long),
 	    struct thread **ret)
 {
 	struct thread *newguy;
@@ -380,6 +379,7 @@ thread_fork(const char *name,
 	 */
 	if (ret != NULL) {
 		*ret = newguy;
+
 	}
 
 	return 0;

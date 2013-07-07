@@ -108,9 +108,8 @@ test(int nowait)
 	 * It is unrolled to encourage gcc to registerize the pids,
 	 * to prevent wait/exit problems if fork corrupts memory.
 	 */
-
 	pid0 = dofork();
-	putchar('0');
+   putchar('0');
 	check();
 	pid1 = dofork();
 	putchar('1');
@@ -119,24 +118,38 @@ test(int nowait)
 	putchar('2');
 	check();
 	pid3 = dofork();
-	putchar('3');
+   putchar('3');
 	check();
-
-	/*
+   /*
 	 * These must be called in reverse order to avoid waiting
 	 * improperly.
-	 */
-   dowait(nowait, pid3);
+	*/
+   /*
+   pid0 = dofork();
+   putchar('0');
+   pid1 = dofork();
+   putchar('1');
+   */
+   /*if (pid0 != 0) {
+      pid1 = dofork();
+      putchar('2');
+   }
+   if (pid0 == 0) {
+      pid2 = dofork();
+      putchar ('3');
+   }*/
+  /* dowait(nowait, pid3);
 	dowait(nowait, pid2);
 	dowait(nowait, pid1);
 	dowait(nowait, pid0);
-	putchar('\n');
+	*/
+   putchar('\n');
 }
 
 int
 main(int argc, char *argv[])
 {
-   int nowait=0;
+   int nowait=1;
 
 	if (argc==2 && !strcmp(argv[1], "-w")) {
 		nowait=1;

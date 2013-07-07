@@ -351,7 +351,7 @@ static
 void *
 subpage_kmalloc(size_t sz)
 {
-	int spl;		// saved interrupt level
+   int spl;		// saved interrupt level
 	unsigned blktype;	// index into sizes[] that we're using
 	struct pageref *pr;	// pageref for page we're allocating from
 	vaddr_t prpage;		// PR_PAGEADDR(pr)

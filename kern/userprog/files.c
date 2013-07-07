@@ -17,11 +17,21 @@
 // *****************************
 
 // Used to initialize standard in/out/err for a given thread (moved from thread_create because of bootstrap problem
-void initIn(int* errno)
+int initIn(int* errno)
 {
 	struct fdesc* stdInput = kmalloc(sizeof(struct fdesc));
-	char* consoleIn = NULL;
+	if (stdInput == NULL)
+   {
+      *errno = ENOMEM;
+      return -1;
+   }
+   char* consoleIn = NULL;
 	consoleIn = kstrdup("con:");
+   if (consoleIn == NULL)
+   {
+      *errno = ENOMEM;
+      return -1;
+   }
 	int mode = O_RDONLY;
 	int off = 0;
 	int ref = 0;
@@ -30,6 +40,7 @@ void initIn(int* errno)
 	if (ret != 0)
 	{
 		*errno = ret;
+      return -1;
 	}
 	stdInput->filename = consoleIn;
 	stdInput->flags = mode;
@@ -40,12 +51,21 @@ void initIn(int* errno)
 }
 
 
-void initOut(int* errno)
+int initOut(int* errno)
 {
 	struct fdesc* stdOutput = kmalloc(sizeof(struct fdesc));
-	char* consoleOut = NULL;
-	consoleOut = kstrdup("con:");
-	int mode = O_WRONLY;
+   if (stdOutput == NULL)
+   {
+      *errno = ENOMEM;
+      return -1;
+   }
+	char* consoleOut;
+   consoleOut = kstrdup("con:");
+   if (consoleOut == NULL) {
+      *errno = ENOMEM;
+      return -1;
+   }
+   int mode = O_WRONLY;
 	int off = 0;
 	int ref = 0;
 	struct vnode* stdOut;
@@ -53,6 +73,7 @@ void initOut(int* errno)
 	if (ret != 0)
 	{
 		*errno = ret;
+      return -1;
 	}
 	stdOutput->filename = consoleOut;
 	stdOutput->flags = mode;
@@ -62,11 +83,21 @@ void initOut(int* errno)
 	curthread->fdTable[1] = stdOutput;
 }
 
-void initErr(int* errno)
+int initErr(int* errno)
 {
 	struct fdesc* stdError = kmalloc(sizeof(struct fdesc));
+   if (stdError == NULL)
+   {
+      *errno = ENOMEM;
+      return -1;
+   }
 	char* consoleErr = NULL;
 	consoleErr = kstrdup("con:");
+   if (consoleErr == NULL)
+   {
+      *errno = ENOMEM;
+      return -1;
+   }
 	int mode = O_WRONLY;
 	int off = 0;
 	int ref = 0;
@@ -75,6 +106,7 @@ void initErr(int* errno)
 	if (ret != 0)
 	{
 		*errno = ret;
+      return -1;
 	}
 	stdError->filename = consoleErr;
 	stdError->flags = mode;
@@ -229,29 +261,51 @@ int error_write(int fd, int* errno, void* buf)
 }
 int sys_write(int fd, const void* buf, size_t nbytes, int* errno) {
    // Just in case check
+   int ret;
    if (curthread->fdTable[0] == NULL)
 	{
-		initIn(errno);
+		ret = initIn(errno);
+      if (ret == -1)
+      {
+         return -1;
+      }
 	}
    // ********
+   /*char l [nbytes+1];
+   int i = 0;
+   for(i = 0; i < nbytes; i++) {
+      l[i] = ((char*)buf)[i];
+   }
+   l[nbytes] = '\0';
+   kprintf ("%s", l);
+  */ 
    if (curthread->fdTable[1] == NULL)
 	{
-		initOut(errno);
+		ret = initOut(errno);
+      if (ret == -1)
+      {
+         return -1;
+      }
 	}
+
 	if (curthread->fdTable[2] == NULL)
-	{
-		initErr(errno);
+	 
+   {
+		ret = initErr(errno);
+      if (ret == -1)
+      {
+         return -1;
+      }
 	}
+
 	if (error_write(fd, errno, buf))
 	{
 		return -1;
 	}
 
-	int ret;
 //	int spl;
 	struct fdesc* curFile = curthread->fdTable[fd];
 	assert(curFile != NULL);
-
 	// set up uio for writing
 	struct uio u;
 
@@ -277,7 +331,8 @@ int sys_write(int fd, const void* buf, size_t nbytes, int* errno) {
 	ret = nbytes - u.uio_resid;
 
 	curFile->offset = u.uio_offset;
-	return ret;
+   return ret;
+   
 }
 // ***********************
 
@@ -308,18 +363,31 @@ int error_read(int fd, int* errno, void* buf)
 }
 
 int sys_read(int fd, void* buf, size_t nbytes, int* errno) {
-	if (curthread->fdTable[0] == NULL)
+	int ret;
+   if (curthread->fdTable[0] == NULL)
 	{
-		initIn(errno);
+		ret = initIn(errno);
+      if (ret == -1)
+      {
+         return -1;
+      }
 	}
    // Just in case checks
    if (curthread->fdTable[1] == NULL)
 	{
-		initOut(errno);
+		ret = initOut(errno);
+      if (ret == -1)
+      {
+         return -1;
+      }
 	}
 	if (curthread->fdTable[2] == NULL)
 	{
-		initErr(errno);
+		ret = initErr(errno);
+      if (ret == -1)
+      {
+         return -1;
+      }
 	}
    // ********
 
@@ -327,7 +395,6 @@ int sys_read(int fd, void* buf, size_t nbytes, int* errno) {
 	{
 		return -1;
 	}
-	int ret;
 //	int spl;
 
 	struct fdesc* curFile = curthread->fdTable[fd];

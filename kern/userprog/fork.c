@@ -56,8 +56,6 @@ pid_t sys_fork(struct trapframe *tf, int * errno)
    int spl;
    spl = splhigh();
    
-   kprintf("starting fork!\n");
-   
    //initialize a trapframe, and do a deep copy of the parent trapframe 
    struct trapframe * tf_copy = kmalloc(sizeof(struct trapframe));
    
@@ -98,6 +96,7 @@ pid_t sys_fork(struct trapframe *tf, int * errno)
       splx(spl);
       return -1;
    }
+
    //kprintf("theres enough memory\n");
    // copy the parents address space, set child's addrspace as the copy
    struct addrspace * childaddr;
@@ -108,6 +107,7 @@ pid_t sys_fork(struct trapframe *tf, int * errno)
       splx(spl);
       return -1;
    }
+
    t->t_vmspace = childaddr;
    //kprintf("set child's Addrspace\n");
    as_activate(t->t_vmspace);
@@ -142,7 +142,6 @@ pid_t sys_fork(struct trapframe *tf, int * errno)
       }
    }
 */
-   kprintf("Done forking!\n \n");
    splx(spl);
    return t->pid;
 }

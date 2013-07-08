@@ -14,7 +14,7 @@
 #include <vm.h>
 #include <vfs.h>
 #include <test.h>
-
+#include <runprogram.h>
 
 /*
  * Load program "progname" and start running it in usermode.
@@ -25,6 +25,7 @@
 int
 runprogram(char *progname, int argc, char** argv)
 {
+
 	struct vnode *v;
 	vaddr_t entrypoint, stackptr;
 	userptr_t varaddr;
@@ -81,6 +82,10 @@ runprogram(char *progname, int argc, char** argv)
 		stackptr -= stackptr%4;
 
 		result = copyoutstr(argv[arg_index], (userptr_t) stackptr, len, &copied);
+		if (result != 0)
+		{
+			return -1;
+		}
 
 		user_argv[arg_index] = (char*) stackptr;
 	}

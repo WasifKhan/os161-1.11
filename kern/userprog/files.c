@@ -48,6 +48,7 @@ int initIn(int* errno)
 	stdInput->ref_count = ref;
 	stdInput->vn = stdIn;
 	curthread->fdTable[0]= stdInput;
+	return 0;
 }
 
 
@@ -81,6 +82,7 @@ int initOut(int* errno)
 	stdOutput->ref_count = ref;
 	stdOutput->vn = stdOut;
 	curthread->fdTable[1] = stdOutput;
+	return 0;
 }
 
 int initErr(int* errno)
@@ -114,6 +116,7 @@ int initErr(int* errno)
 	stdError->ref_count = ref;
 	stdError->vn = stdErr;
 	curthread->fdTable[2] = stdError;
+	return 0;
 }
 
 // finds a free fd in fdTable
@@ -270,15 +273,6 @@ int sys_write(int fd, const void* buf, size_t nbytes, int* errno) {
          return -1;
       }
 	}
-   // ********
-   /*char l [nbytes+1];
-   int i = 0;
-   for(i = 0; i < nbytes; i++) {
-      l[i] = ((char*)buf)[i];
-   }
-   l[nbytes] = '\0';
-   kprintf ("%s", l);
-  */ 
    if (curthread->fdTable[1] == NULL)
 	{
 		ret = initOut(errno);

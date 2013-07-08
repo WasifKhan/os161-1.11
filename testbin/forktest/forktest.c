@@ -151,6 +151,9 @@ main(int argc, char *argv[])
 {
    int nowait=1;
 
+/*
+   int nowait=0;
+>>>>>>> Stashed changes
 	if (argc==2 && !strcmp(argv[1], "-w")) {
 		nowait=1;
 	}
@@ -163,5 +166,16 @@ main(int argc, char *argv[])
 	test(nowait);
 
 	warnx("Complete.");
+*/
+
+	int p1,p2,p3;
+	printf("\n0\n");
+	p1 = fork();
+	printf("\n1\n");
+//	p2 = fork();
+//	printf("\n2\n");
+//	p3 = fork();
+//	printf("\n3\n");
+
 	return 0;
 }

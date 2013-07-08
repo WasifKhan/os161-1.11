@@ -18,6 +18,9 @@
 
 //create the PID_handler
 struct PID_handler * pids;
+//create global process table
+struct process* procTable[300]; 
+
 #include "vfs.h"
 #include "files.h"
 
@@ -79,7 +82,28 @@ thread_create(const char *name)
 	{
 		thread->fdTable[counter] = NULL;
 	}
-   thread->pid = getPID(pids);
+	//initialize procTable
+	int j;
+	for(j = 0 ; j < 300; j++){
+		procTable[j] = NULL;
+	}
+
+	
+	struct process* curProc = kmalloc(sizeof(struct process));
+	
+	int i;
+	for(i = 0; i < 300 ; i++){
+		if(procTable[i] == NULL ){
+			procTable[i] = curProc;
+			curProc->t = thread;
+			curProc->ppid = thread->pid;
+			break;		
+		}
+	}
+
+	
+//	kprintf("new pid is %d\n", thread->pid);
+//	kprintf("new proc is pointing to thread with pid: %d\n", procTable[i]->ppid);
    return thread;
 
 	// **************
@@ -236,6 +260,8 @@ thread_bootstrap(void)
    //initiate pid_handler
    pids = createHandler();
    ///////////////////////////////////////////////
+   //initiate process Table
+//	procTable = createPT();
 	
    /* Create the data structures we need. */
 	sleepers = array_create();
@@ -281,7 +307,9 @@ thread_bootstrap(void)
 void
 thread_shutdown(void)
 {
-   array_destroy(sleepers);
+	//destry process Table 
+	kfree(procTable);
+	array_destroy(sleepers);
 	sleepers = NULL;
 	array_destroy(zombies);
 	zombies = NULL;

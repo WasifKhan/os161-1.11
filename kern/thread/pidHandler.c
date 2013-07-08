@@ -3,20 +3,17 @@
 #include <types.h>
 #include <lib.h>
 
-/*
-struct process * createProcesses (struct PID_handler * handler) {
+
+struct process * createPT () {
    int i;
-   for (i = 1; i < 300; i++) {
-      struct process * p = kmalloc(sizeof(struct createProcess));
-      p->mypid = (pid_t)i;
+ struct process * p = kmalloc(300*sizeof(struct process));  
+ for (i = 0; i < 300; i++) {
+      p->ppid = 0;
+      p->exited = 0;
       p->exitCode = -1;
       p->t = NULL;
-      array_setguy(handler->flags, i, p);
-      q_addtail(handler->pids, i);
    }
 }
-*/
-
 
 
 pid_t getPID (struct PID_handler * handler) {

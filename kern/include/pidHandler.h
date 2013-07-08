@@ -2,17 +2,16 @@
 #include <types.h>
 #include <lib.h>
 
-
-
-/*
 struct process {
-   pid_t mypid;
+   pid_t ppid; 
+   struct lock* exitlock;
+   int exited; //bool
    int exitCode;
    struct thread * t;
 };
 
-struct process * createProcesses (struct PID_handler * handler);
-*/
+struct process * createPT ();
+
 
 struct PID_handler {
    pid_t pidCounter;

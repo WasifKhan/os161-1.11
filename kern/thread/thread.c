@@ -308,7 +308,12 @@ void
 thread_shutdown(void)
 {
 	//destry process Table 
-	kfree(procTable);
+	int i;
+	for (i=0; i < 300; i++)
+	{
+		kfree(procTable[i]);
+	}
+	
 	array_destroy(sleepers);
 	sleepers = NULL;
 	array_destroy(zombies);

@@ -38,6 +38,9 @@ static
 void
 kill_curthread(u_int32_t epc, unsigned code, u_int32_t vaddr)
 {
+	if (code < NTRAPCODES) {
+		thread_exit();
+	}
 	assert(code<NTRAPCODES);
 	kprintf("Fatal user mode trap %u (%s, epc 0x%x, vaddr 0x%x)\n",
 		code, trapcodenames[code], epc, vaddr);

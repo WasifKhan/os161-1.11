@@ -2,7 +2,7 @@
 #define _ADDRSPACE_H_
 
 #include <vm.h>
-#include "opt-dumbvm.h"
+
 
 struct vnode;
 
@@ -14,7 +14,6 @@ struct vnode;
  */
 
 struct addrspace {
-#if OPT_DUMBVM
 	vaddr_t as_vbase1;
 	paddr_t as_pbase1;
 	size_t as_npages1;
@@ -22,9 +21,6 @@ struct addrspace {
 	paddr_t as_pbase2;
 	size_t as_npages2;
 	paddr_t as_stackpbase;
-#else
-	/* Put stuff here for your VM system */
-#endif
 };
 
 /*
@@ -83,6 +79,5 @@ int               as_define_stack(struct addrspace *as, vaddr_t *initstackptr);
  */
 
 int load_elf(struct vnode *v, vaddr_t *entrypoint);
-
 
 #endif /* _ADDRSPACE_H_ */

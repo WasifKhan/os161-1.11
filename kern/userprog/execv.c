@@ -7,7 +7,6 @@
 #include <vnode.h>
 #include <kern/errno.h>
 #include <curthread.h>
-#include <runprogram.h>
 #include <vm.h>
 #include <vfs.h>
 

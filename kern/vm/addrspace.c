@@ -91,14 +91,13 @@ vm_fault(int faulttype, vaddr_t faultaddress)
 
 	switch (faulttype) {
 	    case VM_FAULT_READONLY:
-		/* We always create pages read-write, so we can't get this */
-		panic("dumbvm: got VM_FAULT_READONLY\n");
-	    case VM_FAULT_READ:
+	    	thread_exit();
+		case VM_FAULT_READ:
 	    case VM_FAULT_WRITE:
-		break;
+			break;
 	    default:
-		splx(spl);
-		return EINVAL;
+			splx(spl);
+			return EINVAL;
 	}
 
 	as = curthread->t_vmspace;
@@ -197,7 +196,10 @@ as_create(void)
 	}
 
 	as->as_vbase1 = 0;
+	// *************
+	// Making the code section read-only
 	as->as_pbase1 = 0;
+	// ************
 	as->as_npages1 = 0;
 	as->as_vbase2 = 0;
 	as->as_pbase2 = 0;
@@ -318,6 +320,14 @@ as_define_region(struct addrspace *as, vaddr_t vaddr, size_t sz,
 	if (as->as_vbase1 == 0) {
 		as->as_vbase1 = vaddr;
 		as->as_npages1 = npages;
+		
+		// ************
+		// making code segment read only
+		if (as->as_pbase1 == (as->as_pbase1 | TLBLO_DIRTY))
+		{
+			as->as_pbase1 -= TLBLO_DIRTY;
+		}
+		// ************
 		return 0;
 	}
 

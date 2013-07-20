@@ -16,6 +16,8 @@
 #include <vm.h>
 #include <syscall.h>
 #include <version.h>
+
+#include <uw-vmstats.h>
 #include "opt-A0.h"
 
 /*
@@ -105,7 +107,8 @@ shutdown(void)
 {
 
 	kprintf("Shutting down.\n");
-	
+	_vmstats_print();
+		
 	vfs_clearbootfs();
 	vfs_clearcurdir();
 	vfs_unmountall();

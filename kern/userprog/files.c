@@ -262,29 +262,30 @@ int error_write(int fd, int* errno, void* buf)
 	}
 	return 0;
 }
+
+
 int sys_write(int fd, const void* buf, size_t nbytes, int* errno) {
    // Just in case check
-   int ret;
-   if (curthread->fdTable[0] == NULL)
+   	int ret;
+	if (curthread->fdTable[0] == NULL)
 	{
 		ret = initIn(errno);
-      if (ret == -1)
-      {
-         return -1;
-      }
+    	if (ret == -1)
+      	{
+        	return -1;
+      	}
 	}
-   if (curthread->fdTable[1] == NULL)
+   	if (curthread->fdTable[1] == NULL)
 	{
 		ret = initOut(errno);
-      if (ret == -1)
-      {
-         return -1;
-      }
+      	if (ret == -1)
+      	{
+        	return -1;
+      	}
 	}
 
-	if (curthread->fdTable[2] == NULL)
-	 
-   {
+	if (curthread->fdTable[2] == NULL) 
+   	{
 		ret = initErr(errno);
       if (ret == -1)
       {
@@ -325,6 +326,7 @@ int sys_write(int fd, const void* buf, size_t nbytes, int* errno) {
 	ret = nbytes - u.uio_resid;
 
 	curFile->offset = u.uio_offset;
+	
    return ret;
    
 }

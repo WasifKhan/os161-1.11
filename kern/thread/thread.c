@@ -19,7 +19,7 @@
 //create the PID_handler
 struct PID_handler * pids;
 //create global process table
-struct process* procTable[300]; 
+struct process* procTable[300];;
 
 #include "vfs.h"
 #include "files.h"
@@ -68,8 +68,7 @@ thread_create(const char *name)
 	thread->t_vmspace = NULL;
 
 	thread->t_cwd = NULL;
-   
-  // thread->pid = getPID(pids);	
+	thread->pid = getPID(pids);	
    // If you add things to the thread structure, be sure to initialize
 	// them here.
 
@@ -78,15 +77,11 @@ thread_create(const char *name)
 	
 	// for file input - creates the fdesc table
 	int counter;
-	for (counter = 3; counter < 100; counter++)
+	for (counter = 0; counter < 100; counter++)
 	{
 		thread->fdTable[counter] = NULL;
 	}
 	//initialize procTable
-	int j;
-	for(j = 0 ; j < 300; j++){
-		procTable[j] = NULL;
-	}
 
 	
 	struct process* curProc = kmalloc(sizeof(struct process));
@@ -100,10 +95,12 @@ thread_create(const char *name)
 			break;		
 		}
 	}
-
-	
-//	kprintf("new pid is %d\n", thread->pid);
-//	kprintf("new proc is pointing to thread with pid: %d\n", procTable[i]->ppid);
+	if (i == 300)
+	{
+		kprintf("Created too many processes\n");
+		kfree(curProc);
+		return EFAULT;
+	}
    return thread;
 
 	// **************
@@ -131,7 +128,6 @@ thread_destroy(struct thread *thread)
 	if (thread->t_stack) {
 		kfree(thread->t_stack);
 	}
-   kfree(thread->t_name);
 
 
 	kfree(thread->t_name);
@@ -198,6 +194,7 @@ thread_killall(void)
 	result = array_setsize(sleepers, 0);
 	/* shrinking array: not supposed to fail */
 	assert(result==0);
+
 }
 
 /*
@@ -256,12 +253,16 @@ thread_bootstrap(void)
 {
 	struct thread *me;
 
+	int procInit;
+	for (procInit = 0; procInit < 300; procInit ++)
+	{
+		procTable[procInit] = NULL;
+	}
    //////////////////////////////////////////////// 
    //initiate pid_handler
    pids = createHandler();
    ///////////////////////////////////////////////
    //initiate process Table
-//	procTable = createPT();
 	
    /* Create the data structures we need. */
 	sleepers = array_create();
@@ -309,11 +310,23 @@ thread_shutdown(void)
 {
 	//destry process Table 
 	int i;
-	for (i=0; i < 300; i++)
+	for (i = 0; i < 300; i++)
 	{
-		kfree(procTable[i]);
+		if (procTable[i] != NULL)
+		{
+			kfree(procTable[i]);
+		}
 	}
-	
+
+	array_destroy(pids->flags);
+	while (!q_empty(pids->pids))
+	{
+		q_remhead(pids->pids);
+	}
+	q_destroy(pids->pids);
+	kfree(pids);
+
+
 	array_destroy(sleepers);
 	sleepers = NULL;
 	array_destroy(zombies);
@@ -528,6 +541,7 @@ mi_switch(threadstate_t nextstate)
 void
 thread_exit(void)
 {
+
    if (curthread->t_stack != NULL) {
 		/*
 		 * Check the magic number we put on the bottom end of
@@ -546,19 +560,22 @@ thread_exit(void)
 	// closing all files that are still left open
 	// this situation would occur when a user opens a file then 'logs out'
 	int fileClose;
-	for (fileClose = 0; fileClose < 100; fileClose++)
+	for (fileClose = 3; fileClose < 100; fileClose++)
 	{
+
 		if (curthread->fdTable[fileClose] != NULL)
 		{
-			vfs_close(curthread->fdTable[fileClose]->vn);
+			if (curthread->fdTable[fileClose]->vn != NULL)
+			{
+				vfs_close(curthread->fdTable[fileClose]->vn);
+			}
 			kfree(curthread->fdTable[fileClose]);
 			curthread->fdTable[fileClose] = NULL;
 		}
 	}
 	splhigh();
-   //kprintf("returning pid %d\n", curthread->pid);
+   
    returnPID(curthread->pid, pids);
-	//kprintf("returned pid %d\n", curthread->pid);
    if (curthread->t_vmspace) {
 		/*
 		 * Do this carefully to avoid race condition with
@@ -576,7 +593,8 @@ thread_exit(void)
    
 	assert(numthreads>0);
 	numthreads--;
-	
+
+
    mi_switch(S_ZOMB);
 
 	panic("Thread came back from the dead!\n");

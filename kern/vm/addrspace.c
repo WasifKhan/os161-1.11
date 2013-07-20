@@ -9,15 +9,15 @@
 #include <machine/tlb.h>
 
 
-/*
- * Note! If OPT_DUMBVM is set, as is the case until you start the VM
- * assignment, this file is not compiled or linked or in any way
- * used. The cheesy hack versions in dumbvm.c are used instead.
- */
-
+#include <vm_tlb.h>
 
 #define DUMBVM_STACKPAGES    12
 
+pid_t curPid = -1;
+int totalFaults = 0;
+int faultsWithFree = 0;
+int faultsWithReplace = 0;
+int invalidations = 0;
 
 // ****************
 void
@@ -71,7 +71,6 @@ free_kpages(vaddr_t addr)
 }
 // ****************
 
-
 // ****************
 int
 vm_fault(int faulttype, vaddr_t faultaddress)
@@ -88,6 +87,7 @@ vm_fault(int faulttype, vaddr_t faultaddress)
 	faultaddress &= PAGE_FRAME;
 
 	DEBUG(DB_VM, "dumbvm: fault: 0x%x\n", faultaddress);
+
 
 	switch (faulttype) {
 	    case VM_FAULT_READONLY:
@@ -125,6 +125,7 @@ vm_fault(int faulttype, vaddr_t faultaddress)
 	assert((as->as_pbase2 & PAGE_FRAME) == as->as_pbase2);
 	assert((as->as_stackpbase & PAGE_FRAME) == as->as_stackpbase);
 
+
 	vbase1 = as->as_vbase1;
 	vtop1 = vbase1 + as->as_npages1 * PAGE_SIZE;
 	vbase2 = as->as_vbase2;
@@ -159,12 +160,24 @@ vm_fault(int faulttype, vaddr_t faultaddress)
 		DEBUG(DB_VM, "dumbvm: 0x%x -> 0x%x\n", faultaddress, paddr);
 		TLB_Write(ehi, elo, i);
 		splx(spl);
+		faultsWithFree++;
+		totalFaults++;
 		return 0;
 	}
 
-	kprintf("dumbvm: Ran out of TLB entries - cannot handle page fault\n");
+// *********
+// 	replaces next victim when TLB is full
+	int nextVictim = tlb_get_rr_victim();
+	ehi = faultaddress;
+	elo = paddr | TLBLO_DIRTY | TLBLO_VALID;
+	TLB_Write(ehi, elo, nextVictim);
 	splx(spl);
-	return EFAULT;
+	faultsWithReplace++;
+	totalFaults++;
+// *************
+	return 0;
+	
+//	kprintf("dumbvm: Ran out of TLB entries - cannot handle page fault\n");
 }
 // ****************
 
@@ -249,17 +262,23 @@ as_destroy(struct addrspace *as)
 void
 as_activate(struct addrspace *as)
 {
-	int i, spl;
+	// makes sure a context switch doesn't occur if switching to the same process
+	if (curPid != curthread->pid)
+	{
+		int i, spl;
 
-	(void)as;
+		(void)as;
 
-	spl = splhigh();
+		spl = splhigh();
 
-	for (i=0; i<NUM_TLB; i++) {
-		TLB_Write(TLBHI_INVALID(i), TLBLO_INVALID(), i);
+		for (i=0; i<NUM_TLB; i++) {
+			TLB_Write(TLBHI_INVALID(i), TLBLO_INVALID(), i);
+		}
+		invalidations++;
+		splx(spl);
+
+		curPid = curthread->pid;
 	}
-
-	splx(spl);
 }
 // ****************
 

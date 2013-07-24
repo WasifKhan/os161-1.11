@@ -1,0 +1,225 @@
+RUNNING ./run-batch-A3-option1 : Version 1.0
+---------------------------------------------------------------
+***************  RUNNING [test-vm-big-fork] TESTS  ******************
+
+
+put-your-group-name-here's system version 0 (ASST3 #226)
+
+
+OS/161 kernel: p uw-testbin/vm-mix1-fork
+Child pid = 3 calling do_work
+Checking uninitParent pid = 2 calling do_work
+Checking uninitializialized array1 pid = 3
+ed array1 pid = 2
+Checking uninitialized array2 pidChecking uninitializ = 3
+ed array2 pid = 2
+Checking initialized array1 pid = 3
+Checking initialized array1 pid = 2
+Checking initialized array1 pid = 3
+Checking initialized array1 pid = 2
+Checking initialized array2 again pid = 3
+Checking initialized array2 again pid = 2
+Checking initializedChecking initialized stack_array pi stack_array pid = 2
+Checking initdialized init pid = 2
+ = 3
+Checking initialized init pid = 3
+Checking initialized array2 pid = 2
+Checking initialized array2 pid = 3
+Checking initialized array2 pChecking initialized array2 pid = 3
+id = 2
+Checking initialized stack_array pid = 3
+Checking initialized init pChecking initialized stack_array pid = 2
+id = 3
+Checking initialized array1 for the lChecking initialized init pid = 2
+Checking initialiast time pid = 3
+zed array1 for the last time pid = 2
+Checking initialized array2 for the last time pid = 3
+Checking initialized array2 for the last time pid = 2
+Pid = 3 SUCCEEDED
+Pid = 2 SUCCEEDED
+sleep: Dropping thread <boot/menu>
+panic: Assertion failed: lock != NULL, at ../../thread/synch.c:154 (lock_acquire)
+sys161: 222921101 cycles (217865890 run, 5055211 global-idle)
+sys161:   cpu0: 147635925 kern, 70229965 user, 0 idle)
+sys161: 2575 irqs 15031 exns 0r/0w disk 0r/1874w console 38r/0w/3m emufs 0r/0w net
+sys161: Elapsed real time: 10.636054 seconds (20.959 mhz)
+sys161: Elapsed virtual time: 8.916844057 seconds (25 mhz)
+-----------
+
+
+
+put-your-group-name-here's system version 0 (ASST3 #226)
+
+
+OS/161 kernel: p uw-testbin/vm-mix1-fork
+Child pid = 3 calling do_work
+Checking uninitialPized array1 pid = 3
+arent pid = 2 calling do_work
+Checking uninitialized array1 pid = 2
+Checking uninitialized array2 pid = 3Checking uninitialize
+d array2 pid = 2
+Checking initialized array1 pid = 3
+Checking initialized array1 pid = 2
+Checking initialized array1 pid = 3
+Checking initialized array1 pid = 2
+Checking initialized array2 again pid = 3
+Checking initialized array2 again pid = 2
+Checking initializedChecking initialized stack_array pid = 3 stack_array pid = 2
+Checking init
+Checking initialized init pid = 3ialized init pid = 2
+
+Checking initialized array2 pid = 2
+Checking initialized array2 pid = 3
+Checking initialized array2 pChecking initialized array2 pid = 3
+id = 2
+Checking initialized stack_array pid = Checking initialized stack_array pid = 2
+3
+Checking initializeChecking initialized init pid = 2
+Checking initialid init pid = 3
+Checking initialized array1 for thezed array1 for the last time pid = 2
+ last time pid = 3
+Checking initialized array2 for the last timeChecking initialized array2 for the last time pi pid = 2
+d = 3
+Pid = 2 SUCCEEDED
+sleep: Dropping thread <boot/menu>
+scheduler: Dropping thread child.
+panic: Assertion failed: lock != NULL, at ../../thread/synch.c:154 (lock_acquire)
+sys161: 222632064 cycles (217515521 run, 5116543 global-idle)
+sys161:   cpu0: 147491576 kern, 70023945 user, 0 idle)
+sys161: 2551 irqs 14981 exns 0r/0w disk 0r/1889w console 38r/0w/3m emufs 0r/0w net
+sys161: Elapsed real time: 10.734893 seconds (20.7391 mhz)
+sys161: Elapsed virtual time: 8.905282577 seconds (25 mhz)
+-----------
+
+---------------------------------------------------------------
+***************  RUNNING [test-vm-big-fork-exec] TESTS  ******************
+
+
+put-your-group-name-here's system version 0 (ASST3 #226)
+
+
+OS/161 kernel: p testbin/parallelvm
+Job size approximately 58800 bytes
+Forking 24 jobs; total load 1378k
+Process 0 (pid 3) starting computation...
+Processsleep: Dropping thread <boot/menu>
+sleep: Dropping thread child
+sleep: Dropping thread child
+sleep: Dropping thread child
+sleep: Dropping thread child
+sleep: Dropping thread child
+sleep: Dropping thread child
+sleep: Dropping thread child
+sleep: Dropping thread child
+sleep: Dropping thread child
+sleep: Dropping thread child
+sleep: Dropping thread child
+sleep: Dropping thread child
+sleep: Dropping thread child
+sleep: Dropping thread child
+sleep: Dropping thread child
+sleep: Dropping thread child
+sleep: Dropping thread child
+sleep: Dropping thread child
+sleep: Dropping thread child
+sleep: Dropping thread child
+sleep: Dropping thread child
+sleep: Dropping thread child
+scheduler: Dropping thread child.
+scheduler: Dropping thread child.
+panic: Assertion failed: lock != NULL, at ../../thread/synch.c:154 (lock_acquire)
+sys161: 26879341 cycles (25584865 run, 1294476 global-idle)
+sys161:   cpu0: 25007991 kern, 576874 user, 0 idle)
+sys161: 761 irqs 319 exns 0r/0w disk 0r/1529w console 8r/0w/3m emufs 0r/0w net
+sys161: Elapsed real time: 1.253549 seconds (21.4426 mhz)
+sys161: Elapsed virtual time: 1.075173640 seconds (25 mhz)
+-----------
+
+
+put-your-group-name-here's system version 0 (ASST3 #226)
+
+
+OS/161 kernel: p testbin/triplesort
+testbin/triplesort: Starting: running three copies of /testbin/sort...
+sleep: Dropping thread <boot/menu>
+sleep: Dropping thread child
+sleep: Dropping thread child
+scheduler: Dropping thread child.
+panic: Assertion failed: lock != NULL, at ../../thread/synch.c:154 (lock_acquire)
+sys161: 5512488 cycles (4216276 run, 1296212 global-idle)
+sys161:   cpu0: 4213794 kern, 2482 user, 0 idle)
+sys161: 681 irqs 68 exns 0r/0w disk 0r/866w console 10r/0w/4m emufs 0r/0w net
+sys161: Elapsed real time: 0.251154 seconds (21.9486 mhz)
+sys161: Elapsed virtual time: 0.220499520 seconds (25 mhz)
+-----------
+
+
+put-your-group-name-here's system version 0 (ASST3 #226)
+
+
+OS/161 kernel: p testbin/triplemat
+testbin/triplemat: Starting: running three copies of /testbin/matmult...
+sleep: Dropping thread <boot/menu>
+sleep: Dropping thread child
+sleep: Dropping thread child
+scheduler: Dropping thread child.
+panic: Assertion failed: lock != NULL, at ../../thread/synch.c:154 (lock_acquire)
+sys161: 5516510 cycles (4221802 run, 1294708 global-idle)
+sys161:   cpu0: 4219295 kern, 2507 user, 0 idle)
+sys161: 682 irqs 68 exns 0r/0w disk 0r/867w console 10r/0w/4m emufs 0r/0w net
+sys161: Elapsed real time: 0.306859 seconds (17.9773 mhz)
+sys161: Elapsed virtual time: 0.220660400 seconds (25 mhz)
+-----------
+
+
+put-your-group-name-here's system version 0 (ASST3 #226)
+
+
+OS/161 kernel: p testbin/triplehuge
+testbin/triplehuge: Starting: running three copies of /testbin/huge...
+sleep: Dropping thread <boot/menu>
+sleep: Dropping thread child
+sleep: Dropping thread child
+scheduler: Dropping thread child.
+panic: Assertion failed: lock != NULL, at ../../thread/synch.c:154 (lock_acquire)
+sys161: 5507477 cycles (4214359 run, 1293118 global-idle)
+sys161:   cpu0: 4211877 kern, 2482 user, 0 idle)
+sys161: 678 irqs 68 exns 0r/0w disk 0r/866w console 10r/0w/4m emufs 0r/0w net
+sys161: Elapsed real time: 0.237577 seconds (23.1819 mhz)
+sys161: Elapsed virtual time: 0.220299080 seconds (25 mhz)
+-----------
+
+---------------------------------------------------------------
+***************  RUNNING [test-vm-big-fork-paging] TESTS  ******************
+
+
+put-your-group-name-here's system version 0 (ASST3 #226)
+
+
+OS/161 kernel: p uw-testbin/vm-mix1-fork
+Running program uw-testbin/vm-mix1-fork failed: Out of memory
+Operation took 0.931686817 seconds
+OS/161 kernel: q
+Shutting down.
+VMSTATS:
+VMSTAT                TLB Faults =          0
+VMSTAT      TLB Faults with Free =          0
+VMSTAT   TLB Faults with Replace =          0
+VMSTAT         TLB Invalidations =          1
+VMSTAT               TLB Reloads =          0
+VMSTAT      Page Faults (Zeroed) =          0
+VMSTAT        Page Faults (Disk) =          0
+VMSTAT      Page Faults from ELF =          0
+VMSTAT Page Faults from Swapfile =          0
+VMSTAT           Swapfile Writes =          0
+VMSTAT TLB Faults with Free + TLB Faults with Replace = 0
+VMSTAT TLB Reloads + Page Faults (Zeroed) + Page Faults (Disk) = 0
+VMSTAT ELF File reads + Swapfile reads = 0
+The system is halted.
+sys161: 27802222 cycles (4830567 run, 22971655 global-idle)
+sys161:   cpu0: 4830567 kern, 0 user, 0 idle)
+sys161: 1460 irqs 0 exns 0r/0w disk 0r/1378w console 4r/0w/3m emufs 0r/0w net
+sys161: Elapsed real time: 1.129138 seconds (24.6225 mhz)
+sys161: Elapsed virtual time: 1.112088897 seconds (25 mhz)
+-----------
+

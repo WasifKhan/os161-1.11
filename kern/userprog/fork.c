@@ -115,7 +115,7 @@ pid_t sys_fork(struct trapframe *tf, int * errno)
    	as_activate(t->t_vmspace);
 	
 	int index;
-	for (index = 0; index < 100; index++)
+/*	for (index = 0; index < 100; index++)
 	{
 		if (curthread->fdTable[index] != NULL)
      	{
@@ -146,7 +146,7 @@ pid_t sys_fork(struct trapframe *tf, int * errno)
         	t->fdTable[index] = NULL;
       	}
    	}
-
+*/
    	splx(spl);
    	return t->pid;
 }

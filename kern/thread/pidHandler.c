@@ -3,7 +3,7 @@
 #include <types.h>
 #include <lib.h>
 
-
+/*
 struct process * createPT () {
    int i;
  struct process * p = kmalloc(300*sizeof(struct process));  
@@ -14,9 +14,10 @@ struct process * createPT () {
       p->t = NULL;
    }
 }
-
+*/
 
 pid_t getPID (struct PID_handler * handler) {
+//	kprintf("Testing getPID\n");
       pid_t pid = (pid_t)q_remhead(handler->pids);         
       array_setguy (handler->flags, (int)pid, 1);
       return pid;
@@ -34,9 +35,10 @@ struct PID_handler * createHandler () {
    array_preallocate (handler->flags, 300);
    array_setsize(handler->flags, 300);
    handler->pids = q_create(1);  // initiate to 1, grows when necessary
-   q_preallocate(handler->pids, 299);
+
+//   q_preallocate(handler->pids, 299);
    int i;
-   for (i = 0; i< 300; i++) {
+   for (i = 0; i < 300; i++) {
      if (i == 0) {
       array_setguy(handler->flags, i, -1);
      } else {
@@ -46,7 +48,9 @@ struct PID_handler * createHandler () {
 
    for (i = 1; i < 50; i++) {
       q_addtail(handler->pids, i);
+
    }
+
      
      
      /*

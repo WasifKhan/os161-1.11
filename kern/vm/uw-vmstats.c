@@ -19,12 +19,22 @@
 #include <lib.h>
 #include <synch.h>
 #include <machine/spl.h>
+#include <addrspace.h>
 #include "uw-vmstats.h"
 
 /* Counters for tracking statistics */
 static unsigned int stats_counts[VMSTAT_COUNT];
 
 static struct lock *stats_lock = 0;
+
+// ************
+// all the stats we need
+extern faultsWithFree;
+extern faultsWithReplace;
+extern invalidations;
+extern totalFaults;
+// ************
+
 
 /* Strings used in printing out the statistics */
 static const char *stats_names[] = {
@@ -112,6 +122,36 @@ _vmstats_init()
 
 }
 
+
+// ***********
+// Loads stats for everything
+void loadStats()
+{
+	stats_counts[0] = totalFaults;
+	stats_counts[1] = faultsWithFree;
+	stats_counts[2] = faultsWithReplace;
+	stats_counts[3] = invalidations;
+	stats_counts[4] = 0;
+	stats_counts[5] = 0;
+	stats_counts[6] = 0;
+	stats_counts[7] = 0;
+	stats_counts[8] = 0;
+	stats_counts[9] = 0;
+}
+/*
+   0  "TLB Faults", 
+   1  "TLB Faults with Free",
+   2  "TLB Faults with Replace",
+   3  "TLB Invalidations",
+   4  "TLB Reloads",
+   5  "Page Faults (Zeroed)",
+   6  "Page Faults (Disk)",
+   7  "Page Faults from ELF",
+   8  "Page Faults from Swapfile",
+   9  "Swapfile Writes",
+*/
+// *************
+
 /* ---------------------------------------------------------------------- */
 void
 _vmstats_print()
@@ -124,6 +164,9 @@ _vmstats_print()
   int disk_reads = 0;
 
   kprintf("VMSTATS:\n");
+
+  loadStats();
+
   for (i=0; i<VMSTAT_COUNT; i++) {
     kprintf("VMSTAT %25s = %10d\n", stats_names[i], stats_counts[i]);
   }

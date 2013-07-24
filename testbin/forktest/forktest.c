@@ -146,7 +146,10 @@ test(int nowait)
 	dowait(nowait, pid2);
 	dowait(nowait, pid1);
 	dowait(nowait, pid0);
+<<<<<<< HEAD
 	
+=======
+>>>>>>> 12b1319fb634e246a0d75bfe622ff6481061173c
    putchar('\n');
 }
 
@@ -155,31 +158,32 @@ main(int argc, char *argv[])
 {
    int nowait=1;
 
-/*
-   int nowait=0;
->>>>>>> Stashed changes
-	if (argc==2 && !strcmp(argv[1], "-w")) {
+
+//   int nowait=0;
+//>>>>>>> Stashed changes
+/*	if (argc==2 && !strcmp(argv[1], "-w")) {
 		nowait=1;
 	}
 	else if (argc!=1 && argc!=0) {
 		warnx("usage: forktest [-w]");
 		return 1;
 	}
+*/
 	warnx("Starting.");
 
 	test(nowait);
 
 	warnx("Complete.");
-*/
 
+/*
 	int p1,p2,p3;
 	printf("\n0\n");
 	p1 = fork();
 	printf("\n1\n");
-//	p2 = fork();
-//	printf("\n2\n");
-//	p3 = fork();
-//	printf("\n3\n");
-
+	p2 = fork();
+	printf("\n2\n");
+	p3 = fork();
+	printf("\n3\n");
+*/
 	return 0;
 }

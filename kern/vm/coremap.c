@@ -18,7 +18,7 @@ void takePages(int index, int pages)
       coremap[index+i].curr_state = USED;
       coremap[index+i].entryNum = nextOut; // might have to change this to individual pages leaving
       coremap[index+i].contiguous_pages = -1;
-      bzero(coremap[index+i], PAGE_SIZE); 
+      bzero(&coremap[index+i], PAGE_SIZE); 
    }
 }
 

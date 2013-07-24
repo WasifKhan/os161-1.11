@@ -5,7 +5,7 @@ enum state {
 };
 
 struct coremap_entry {
-   state curr_state;
+   enum state curr_state;
    int contiguous_pages;
    paddr_t paddr;
    int entryNum;

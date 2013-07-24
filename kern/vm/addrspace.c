@@ -8,7 +8,7 @@
 #include <machine/spl.h>
 #include <machine/tlb.h>
 #include <array.h>
-
+#include "coremap.h"
 #define PAGE_SIZE 4096
 
 #include <vm_tlb.h>
@@ -24,13 +24,14 @@ int faultsWithFree = 0;
 int faultsWithReplace = 0;
 int invalidations = 0;
 
+
+int nextOut;
 // ****************
 void
 vm_bootstrap(void)
 {
-   
-   u_int32_t free;
-   u_int32_t first;
+/*	u_int32_t free;
+	u_int32_t first;
    u_int32_t last;
    ram_getsize(&first, &last);
    num_pages = last / PAGE_SIZE; 
@@ -40,6 +41,7 @@ vm_bootstrap(void)
    while (last % PAGE_SIZE != 0) {
       last--;      
    }
+
    
    while (first % PAGE_SIZE != 0) {
       first ++;
@@ -49,14 +51,15 @@ vm_bootstrap(void)
    coremap = (struct coremap_entry*) PADDR_TO_KVADDR (first);
    free = first + num_pages * sizeof(struct coremap_entry); 
 
-   /* have to make sure that free begins at the first full free page */
+  // have to make sure that free begins at the first full free page 
+  
    while (free % PAGE_SIZE != 0) {
       free++;
    }
 
-   /* fill the coremap with coremap_entrys*/
+   // fill the coremap with coremap_entrys
    
-   /* first, the fixed pages {kernel stuff + the coremap itself} */
+   // first, the fixed pages {kernel stuff + the coremap itself}
    paddr_t curraddr = 0;
    int page;
    int fixedpages = free / PAGE_SIZE;
@@ -65,7 +68,7 @@ vm_bootstrap(void)
       coremap[page].contiguous_pages = -1;
       coremap[page].paddr = curraddr;
       coremap[page].entryNum = -1;
-      curradr+= PAGE_SIZE;
+      curraddr+= PAGE_SIZE;
    }
    
    freepages = (last - free) / PAGE_SIZE;
@@ -78,6 +81,7 @@ vm_bootstrap(void)
       freepages--;
    }
    nextOut = 0;
+*/
 }
 // ****************
 
@@ -105,13 +109,15 @@ getppages(unsigned long npages)
 vaddr_t 
 alloc_kpages(int npages)
 {
-   if (coremap == NULL) {	
+	
+   //if (coremap == NULL) {	
       paddr_t pa;
-   	pa = getppages(npages);
-   	if (pa==0) {
-   		return 0;
-   	}
-	   return PADDR_TO_KVADDR(pa);
+   	  pa = getppages(npages);
+   	  if (pa==0) {
+   	  	  return 0;
+   	  }
+	  return PADDR_TO_KVADDR(pa);
+   /*
    } else {
       int result = find_kpages(npages);
       
@@ -120,9 +126,7 @@ alloc_kpages(int npages)
       } else {
          return PADDR_TO_KVADDR((coremap[result]).paddr);   
       }
-
-
-   }
+   }*/
 }
 // ****************
 
@@ -130,9 +134,9 @@ alloc_kpages(int npages)
 // ****************
    
 /* sets the coremap entry to FREE and zero-fills the page */
-void set_free (index i) {
-   assert (coremap[i].state != FIXED);
-   coremap[i].state = FREE;
+void set_free (int i) {
+   assert (coremap[i].curr_state != FIXED);
+   coremap[i].curr_state = FREE;
    coremap[i].entryNum = -1;
    //bzero(coremap[i].paddr, PAGE_SIZE);
 }
@@ -158,7 +162,7 @@ free_kpages(vaddr_t addr)
   
    // find the first page to free
    for (startingPage = 0; startingPage < num_pages; startingPage++) {
-      if (coremap[startingPage].paddr = phys_addr) {
+      if (coremap[startingPage].paddr == phys_addr) {
          break;   
       }
    }
@@ -175,7 +179,7 @@ free_kpages(vaddr_t addr)
    }
 
    /* check if the number of contiguous pages goes beyond what we are freeing */
-   if (coremap[i].state == FREE) {
+   if (coremap[i].curr_state == FREE) {
       contigPages += coremap[i].contiguous_pages;   
    }
    

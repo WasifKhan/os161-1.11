@@ -37,6 +37,3 @@ int find_kpages (int k) {
       }
       return -1;
 }
-
-
-

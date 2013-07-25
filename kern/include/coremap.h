@@ -13,3 +13,4 @@ struct coremap_entry {
 
 
 int find_kpages (int k);
+

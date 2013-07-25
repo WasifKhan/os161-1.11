@@ -545,7 +545,6 @@ subpage_kfree(void *ptr)
 void *
 kmalloc(size_t sz)
 {
-   assert( 1==2);
 	if (sz>=LARGEST_SUBPAGE_SIZE) {
 		unsigned long npages;
 		vaddr_t address;

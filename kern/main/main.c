@@ -77,15 +77,13 @@ boot(void)
 	#if OPT_A0
 		hello();
 	#endif /* OPT_A0 */
-
 	ram_bootstrap();
 	scheduler_bootstrap();
 	thread_bootstrap();
 	vfs_bootstrap();
 	dev_bootstrap();
-   vm_bootstrap();
+	vm_bootstrap();
 	kprintf_bootstrap();
-
 
 	/* Default bootfs - but ignore failure, in case emu0 doesn't exist */
 	vfs_setbootfs("emu0");

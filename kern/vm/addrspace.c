@@ -162,13 +162,21 @@ void set_free (int i) {
 /* this function sets the contiguous_pages field for the coremap_entrys being freed */
 
 void set_contiguousPages (int firstIndex, int lastIndex, int contPages) {
-   int i;
-   int currentContPages = contPages;
+    int i;
+    int currentContPages = contPages;
+	if (coremap[firstIndex-1].curr_state == FREE) {
+		i = firstIndex-1;
+		
+		while (coremap[i].curr_state == FREE) {
+			coremap[i].contiguous_pages += contPages;
+			i--;
+		}
+	}
 
-   for (i = firstIndex; i <= lastIndex; i++) {
-      coremap[i].contiguous_pages = currentContPages;
-      currentContPages--;
-   }
+    for (i = firstIndex; i <= lastIndex; i++) {
+       coremap[i].contiguous_pages = currentContPages;
+       currentContPages--;
+    }
 
 }
 

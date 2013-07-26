@@ -76,7 +76,6 @@ vm_bootstrap(void)
       curraddr+= PAGE_SIZE;
    }
 
-   kprintf("\n\n First index %d and first address %x \n\n", page, curraddr);
    assert (curraddr % PAGE_SIZE == 0); 
    //freepages = (last - free) / PAGE_SIZE;
    freepages = num_pages - page;
@@ -112,7 +111,6 @@ getppages(unsigned long npages)
 	addr = ram_stealmem(npages);
 	
 	splx(spl);
-	kprintf("Shouldn't print! \n\n");
 	return addr;
 }
 // ****************
@@ -137,12 +135,9 @@ alloc_kpages(int npages)
       
       if (result == -1) {
          lock_release(coreEntryLock);
-		 kprintf("perhaps not nuff memory\n");
 		 return 0;  
       
 	  } else {
-         kprintf("Phys addr is %x \n", coremap[result].paddr);
-		 kprintf("Virt addr is %x \n", PADDR_TO_KVADDR(coremap[result].paddr));
 		 lock_release(coreEntryLock);
 		 return PADDR_TO_KVADDR(coremap[result].paddr);   
       }

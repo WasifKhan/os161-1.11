@@ -15,9 +15,6 @@ void takePages(int index, int pages)
    int i;
    for (i = 0; i < pages; i++)
    {	
-	  if (coremap[index+i].curr_state == FIXED) {
-		  kprintf ("Oh no. \n");
-	  }
 	  assert(coremap[index+i].curr_state == FREE); 
       coremap[index+i].curr_state = USED;
       coremap[index+i].entryNum = nextOut; // might have to change this to individual pages leaving
@@ -37,7 +34,6 @@ int find_kpages (int k) {
          {
             takePages(i, k);
             nextOut ++;
-            kprintf("gottem\n\n\n\n");
 			return i;
          }
 

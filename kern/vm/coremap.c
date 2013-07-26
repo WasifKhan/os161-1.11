@@ -17,7 +17,8 @@ void takePages(int index, int pages)
    {	
 	  if (coremap[index+i].curr_state == FIXED) {
 		  kprintf ("Oh no. \n");
-	  } 
+	  }
+	  assert(coremap[index+i].curr_state == FREE); 
       coremap[index+i].curr_state = USED;
       coremap[index+i].entryNum = nextOut; // might have to change this to individual pages leaving
       coremap[index+i].contiguous_pages = -1;

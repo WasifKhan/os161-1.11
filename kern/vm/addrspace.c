@@ -67,7 +67,6 @@ vm_bootstrap(void)
    // first, the fixed pages {kernel stuff + the coremap itself}
    paddr_t curraddr = 0;
    int page;
-   
    int fixedpages = free / PAGE_SIZE;
    for (page = 0; page <= fixedpages; page++) {
       coremap[page].curr_state = FIXED;
@@ -113,6 +112,7 @@ getppages(unsigned long npages)
 	addr = ram_stealmem(npages);
 	
 	splx(spl);
+	kprintf("Shouldn't print! \n\n");
 	return addr;
 }
 // ****************
@@ -124,7 +124,7 @@ alloc_kpages(int npages)
 {
 	
    if (coremap == NULL) {	
-      paddr_t pa;
+	  paddr_t pa;
    	  pa = getppages(npages);
    	  if (pa==0) {
 		  return 0;
@@ -178,7 +178,7 @@ void set_contiguousPages (int firstIndex, int lastIndex, int contPages) {
 void 
 free_kpages(vaddr_t addr)
 {
-  /*	if (coremap != NULL) {
+  	if (coremap != NULL) {
 		lock_acquire(coreEntryLock);
 		paddr_t phys_addr = addr - 0x80000000;
 		int page = phys_addr / PAGE_SIZE;
@@ -211,7 +211,7 @@ free_kpages(vaddr_t addr)
    	
     	set_contiguousPages (startingPage, i-1, contigPages);
 		lock_release(coreEntryLock);
-	}*/
+	}
 }
 // ****************
 
@@ -497,17 +497,19 @@ as_prepare_load(struct addrspace *as)
 	assert(as->as_pbase2 == 0);
 	assert(as->as_stackpbase == 0);
 
-	as->as_pbase1 = getppages(as->as_npages1);
+	as->as_pbase1 = alloc_kpages(as->as_npages1) - 0x80000000;
+	//getppages(as->as_npages1);
 	if (as->as_pbase1 == 0) {
 		return ENOMEM;
 	}
 
-	as->as_pbase2 = getppages(as->as_npages2);
+	as->as_pbase2 = alloc_kpages (as->as_npages2) - 0x80000000; 
+	//getppages(as->as_npages2);
 	if (as->as_pbase2 == 0) {
 		return ENOMEM;
 	}
 
-	as->as_stackpbase = getppages(DUMBVM_STACKPAGES);
+	as->as_stackpbase = alloc_kpages (DUMBVM_STACKPAGES) - 0x80000000; //= getppages(DUMBVM_STACKPAGES);
 	if (as->as_stackpbase == 0) {
 		return ENOMEM;
 	}

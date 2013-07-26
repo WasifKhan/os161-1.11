@@ -68,11 +68,12 @@ vm_bootstrap(void)
    paddr_t curraddr = 0;
    int page;
    int fixedpages = free / PAGE_SIZE;
+   
    for (page = 0; page <= fixedpages; page++) {
       coremap[page].curr_state = FIXED;
       coremap[page].contiguous_pages = -1;
       coremap[page].paddr = curraddr;
-      coremap[page].entryNum = -1;
+      coremap[page].entryNum = -2;
       curraddr+= PAGE_SIZE;
    }
 
@@ -93,6 +94,7 @@ vm_bootstrap(void)
    nextOut = 0;
    coreEntryLock = lock_create("coremapEntryLock");
    splx(spl);
+
 }
 // ****************
 
@@ -150,7 +152,7 @@ alloc_kpages(int npages)
    
 /* sets the coremap entry to FREE and zero-fills the page */
 void set_free (int i) {
-   assert (coremap[i].curr_state != FIXED);
+   //assert (coremap[i].curr_state != FIXED);
    coremap[i].curr_state = FREE;
    coremap[i].entryNum = -1;
    bzero(PADDR_TO_KVADDR(coremap[i].paddr), PAGE_SIZE);
@@ -193,12 +195,18 @@ free_kpages(vaddr_t addr)
    		int eNum = coremap[i].entryNum;
    
 	    //find number of contiguous pages, free along the way
-  		while (coremap[i].entryNum == eNum) {
-	      set_free(i);
-    	  contigPages++;
-   	   	  i++;
-  		 }
-
+  		if (coremap[i].curr_state == USED) {
+			while (coremap[i].entryNum == eNum) {
+	      		set_free(i);
+    	  		contigPages++;
+   	   	  		i++;
+  		 	}
+		} else {
+			// only gets called on final free
+		//	while (coremap[i].entryNum = -2) {
+		//		set_free(i);	
+		//	}
+		}	
 	   // check if the number of contiguous pages goes beyond what we are freeing
 	   if (coremap[i].curr_state == FREE) {
    		   contigPages += coremap[i].contiguous_pages;   

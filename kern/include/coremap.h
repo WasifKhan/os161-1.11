@@ -1,7 +1,7 @@
 enum state {
-   FIXED,
-   FREE,
-   USED
+   FIXED = -1,
+   FREE = -2,
+   USED = -3
 };
 
 struct coremap_entry {

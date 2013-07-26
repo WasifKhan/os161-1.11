@@ -553,6 +553,7 @@ kmalloc(size_t sz)
 		npages = (sz + PAGE_SIZE - 1)/PAGE_SIZE;
 		address = alloc_kpages(npages);
 		if (address==0) {
+			kprintf("got zero \n\n\n");
 			return NULL;
 		}
 

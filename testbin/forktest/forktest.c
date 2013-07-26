@@ -146,17 +146,13 @@ test(int nowait)
 	dowait(nowait, pid2);
 	dowait(nowait, pid1);
 	dowait(nowait, pid0);
-<<<<<<< HEAD
-	
-=======
->>>>>>> 12b1319fb634e246a0d75bfe622ff6481061173c
    putchar('\n');
 }
 
 int
 main(int argc, char *argv[])
 {
-   int nowait=1;
+   //int nowait=1;
 
 
 //   int nowait=0;
@@ -169,12 +165,13 @@ main(int argc, char *argv[])
 		return 1;
 	}
 */
+	/*
 	warnx("Starting.");
 
 	test(nowait);
 
 	warnx("Complete.");
-
+*/
 /*
 	int p1,p2,p3;
 	printf("\n0\n");

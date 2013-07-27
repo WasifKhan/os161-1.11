@@ -16,6 +16,10 @@
 #include "opt-synchprobs.h"
 #include <pidHandler.h>
 
+// for freepages
+#include <addrspace.h>
+// for pageTable
+#include <pt.h>
 //create the PID_handler
 struct PID_handler * pids;
 //create global process table
@@ -44,6 +48,7 @@ static struct array *zombies;
 /* Total number of outstanding threads. Does not count zombies[]. */
 int numthreads;
 
+extern int freepages;
 /*
  * Create a thread. This is used both to create the first thread's 
  * thread structure and to create subsequent threads.
@@ -101,7 +106,18 @@ thread_create(const char *name)
 		kfree(curProc);
 		return EFAULT;
 	}
-   return thread;
+	
+	// initializes the pageTable
+	struct pt_entry* PT = kmalloc(sizeof(struct pt_entry) * freepages);
+	for (i = 0; i < freepages; i++)
+	{
+		PT[i].paddr = 0;
+		PT[i].vaddr = 0;
+		PT[i].nextBoot = 0;
+	}
+
+	thread->pageTable = PT;
+   	return thread;
 
 	// **************
 }
@@ -594,6 +610,8 @@ thread_exit(void)
 	assert(numthreads>0);
 	numthreads--;
 
+	// free pageTable
+	kfree(curthread->pageTable);
 
    mi_switch(S_ZOMB);
 

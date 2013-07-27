@@ -9,10 +9,8 @@
 #include <machine/pcb.h>
 #include <kern/limits.h>
 #include <files.h>
-
-
+#include <pt.h>
 struct addrspace;
-
 struct thread {
 	/**********************************************************/
 	/* Private thread members - internal to the thread system */
@@ -40,6 +38,8 @@ struct thread {
 	 */
 	struct vnode *t_cwd;
 	struct fdesc* fdTable[100];
+
+	struct pt_entry* pageTable;
 };
 
 /* Call once during startup to allocate data structures. */

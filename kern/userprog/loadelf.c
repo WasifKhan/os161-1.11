@@ -189,7 +189,22 @@ load_elf(struct vnode *v, vaddr_t *entrypoint)
 	if (result) {
 		return result;
 	}
+/*
+	// ************
+	// set the vnode/code/data offset in addrspace
+	curthread->t_vmspace->vn = v;
+	for(i = 0; i < eh.e_phnum; i++ ){
+		if(i == 1 ){//code seg
+			curthread->t_vmspace->code_offset = eh.e_phoff + i*eh.e_phentsize;
+		}
 
+		if(i == 2 ){//data seg
+			curthread->t_vmspace->data_offset = eh.e_phoff + i*eh.e_phentsize;
+		}
+
+	}
+	// ************
+*/
 	/*
 	 * Now actually load each segment.
 	 */
@@ -204,15 +219,18 @@ load_elf(struct vnode *v, vaddr_t *entrypoint)
 		}
 
 		if (ku.uio_resid != 0) {
-			/* short read; problem with executable? */
+			// short read; problem with executable? 
 			kprintf("ELF: short read on phdr - file truncated?\n");
 			return ENOEXEC;
 		}
 
 		switch (ph.p_type) {
-		    case PT_NULL: /* skip */ continue;
-		    case PT_PHDR: /* skip */ continue;
-		    case PT_MIPS_REGINFO: /* skip */ continue;
+		    case PT_NULL: // skip  
+				continue;
+		    case PT_PHDR: // skip 
+				continue;
+		    case PT_MIPS_REGINFO: // skip  
+				continue;
 		    case PT_LOAD: break;
 		    default:
 			kprintf("loadelf: unknown segment type %d\n", 

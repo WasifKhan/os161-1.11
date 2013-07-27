@@ -17,15 +17,16 @@
 
 #define DUMBVM_STACKPAGES    12
 
-struct coremap_entry * coremap = NULL;
+struct coremap_entry* coremap = NULL;
 int freepages;
-int num_pages; 
+int num_pages;
 pid_t curPid = -1;
 
 int totalFaults = 0;
 int faultsWithFree = 0;
 int faultsWithReplace = 0;
 int invalidations = 0;
+int tlbReloads = 0;
 struct lock * coreEntryLock;
 
 
@@ -190,8 +191,7 @@ free_kpages(vaddr_t addr)
    		//assert(coremap[page].curr_state != FIXED);
 		int startingPage;
    		// find the first page to free
-	
-	
+		
 	   	for (startingPage = 0; startingPage < num_pages; startingPage++) {
     	  if (coremap[startingPage].paddr == phys_addr) {
         	 break;   
@@ -209,12 +209,13 @@ free_kpages(vaddr_t addr)
     	  		contigPages++;
    	   	  		i++;
   		 	}
-		} else {
-			// only gets called on final free
+		} 
+		//else {
+		// only gets called on final free
 		//	while (coremap[i].entryNum = -2) {
 		//		set_free(i);	
 		//	}
-		}	
+		//}	
 	   // check if the number of contiguous pages goes beyond what we are freeing
 	   if (coremap[i].curr_state == FREE) {
    		   contigPages += coremap[i].contiguous_pages;   
@@ -226,6 +227,10 @@ free_kpages(vaddr_t addr)
 }
 // ****************
 
+int inMem2(vaddr_t a)
+{
+	return 1;
+}
 // ****************
 int
 vm_fault(int faulttype, vaddr_t faultaddress)
@@ -304,41 +309,55 @@ vm_fault(int faulttype, vaddr_t faultaddress)
 	/* make sure it's page-aligned */
 	assert((paddr & PAGE_FRAME)==paddr);
 
-	for (i=0; i<NUM_TLB; i++) {
-		TLB_Read(&ehi, &elo, i);
-		if (elo & TLBLO_VALID) {
-			continue;
+	// Changed to inMem2 just for testing purposes
+	paddr_t physAddr = inMem2(faultaddress);
+	// means the physAddr is in memory
+	if (physAddr != 0)
+	{
+		// if tlb is not full - add it to tlb
+		for (i=0; i<NUM_TLB; i++) {
+			TLB_Read(&ehi, &elo, i);
+			if (elo & TLBLO_VALID) {
+				continue;
+			}
+			ehi = faultaddress;
+			elo = paddr | TLBLO_DIRTY | TLBLO_VALID;
+			DEBUG(DB_VM, "dumbvm: 0x%x -> 0x%x\n", faultaddress, paddr);
+			TLB_Write(ehi, elo, i);
+			splx(spl);
+			faultsWithFree++;
+			totalFaults++;
+			return 0;
 		}
+	// *********
+	// 	if tlb is full: replaces next victim with alg provided
+		int nextVictim = tlb_get_rr_victim();
 		ehi = faultaddress;
 		elo = paddr | TLBLO_DIRTY | TLBLO_VALID;
-		DEBUG(DB_VM, "dumbvm: 0x%x -> 0x%x\n", faultaddress, paddr);
-		TLB_Write(ehi, elo, i);
+		TLB_Write(ehi, elo, nextVictim);
 		splx(spl);
-		faultsWithFree++;
+		faultsWithReplace++;
 		totalFaults++;
 		return 0;
 	}
+	// if physAddr is not in memory
+	else
+	{
+//		vaddr_t vpage = alloc_kpages(1);
+/*
+		copy proper information into the page
 
-// *********
-// 	replaces next victim when TLB is full
-	int nextVictim = tlb_get_rr_victim();
-	ehi = faultaddress;
-	elo = paddr | TLBLO_DIRTY | TLBLO_VALID;
-	TLB_Write(ehi, elo, nextVictim);
-	splx(spl);
-	faultsWithReplace++;
-	totalFaults++;
-// *************
-	return 0;
+		add page into pagetable
+
+		add into tlb
+		*/
+		return 0;
+	}
+	// *************
+	return EFAULT;
 	
 //	kprintf("dumbvm: Ran out of TLB entries - cannot handle page fault\n");
 }
-// ****************
-
-// ****************
-// ****************
-
-// ****************
 // ****************
 
 // ****************

@@ -29,10 +29,11 @@ static struct lock *stats_lock = 0;
 
 // ************
 // all the stats we need
-extern faultsWithFree;
-extern faultsWithReplace;
-extern invalidations;
-extern totalFaults;
+extern int totalFaults;
+extern int faultsWithFree;
+extern int faultsWithReplace;
+extern int invalidations;
+extern int tlbReloads;
 // ************
 
 
@@ -131,7 +132,7 @@ void loadStats()
 	stats_counts[1] = faultsWithFree;
 	stats_counts[2] = faultsWithReplace;
 	stats_counts[3] = invalidations;
-	stats_counts[4] = 0;
+	stats_counts[4] = tlbReloads;
 	stats_counts[5] = 0;
 	stats_counts[6] = 0;
 	stats_counts[7] = 0;

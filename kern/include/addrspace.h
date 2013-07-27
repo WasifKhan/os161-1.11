@@ -21,6 +21,10 @@ struct addrspace {
 	paddr_t as_pbase2;
 	size_t as_npages2;
 	paddr_t as_stackpbase;
+
+//	struct vnode* vn;
+//	off_t code_offset;
+//	off_t data_offset;
 };
 
 /*
